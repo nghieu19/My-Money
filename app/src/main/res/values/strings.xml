@@ -1,0 +1,82 @@
+<resources>
+    <string name="app_name">MyMoney</string>
+    <string name="total_balance">Total balance</string>
+    <string name="expenses">Expenses</string>
+    <string name="incomes">Incomes</string>
+    <string name="food">Food</string>
+    <string name="medicine">Medicine</string>
+    <string name="clothing">Clothing</string>
+    <string name="airline_ticket">Airline ticket</string>
+    <string name="taxi">Taxi</string>
+    <string name="balance_amount">5.890.000 VNĐ</string>
+    <string name="date">02/09/2025</string>
+    <string name="expenses_title">Expenses:</string>
+    <string name="home">Home</string>
+    <string name="transactions">Transactions</string>
+    <string name="statistics">Statistics</string>
+    <string name="ai_chat">AI Chat</string>
+    <string name="search">Search</string>
+    <string name="study">Study</string>
+    <string name="work">Work</string>
+    <string name="pet">Pet</string>
+    <string name="travel">Travel</string>
+    <string name="learning_english">Learning English</string>
+    <string name="fastfood">Fastfood</string>
+    <string name="salary">Salary</string>
+    <string name="buy_food">Buy food</string>
+    <string name="ot">OT</string>
+    <string name="filter">Filter</string>
+    <string name="top_expenses">Top expenses:</string>
+    <string name="entertainment">Entertainment</string>
+    <string name="date_range">01/08/2025 - 31/08/2025</string>
+    <string name="year_2025">2025</string>
+    <string name="export">Export</string>
+    <string name="jan">Jan</string>
+    <string name="feb">Feb</string>
+    <string name="mar">Mar</string>
+    <string name="apr">Apr</string>
+    <string name="may">May</string>
+    <string name="jun">Jun</string>
+    <string name="jul">Jul</string>
+    <string name="aug">Aug</string>
+    <string name="sep">Sep</string>
+    <string name="oct">Oct</string>
+    <string name="nov">Nov</string>
+    <string name="dec">Dec</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_history">History</string>
+    <string name="nav_statistics">Statistics</string>
+    
+    <!-- Categories -->
+    <string name="category_home">Home</string>
+    <string name="category_entertainment">Entertainment</string>
+    <string name="category_study">Study</string>
+    <string name="category_travel">Travel</string>
+    <string name="category_food">Food</string>
+    <string name="category_pet">Pet</string>
+    
+    <!-- Months with abbreviations -->
+    <string name="month_jan">Jan</string>
+    <string name="month_feb">Feb</string>
+    <string name="month_mar">Mar</string>
+    <string name="month_apr">Apr</string>
+    <string name="month_may">May</string>
+    <string name="month_jun">Jun</string>
+    
+    <!-- Import Screen -->
+    <string name="import_title">Import</string>
+    <string name="expense_type">Chi tiêu</string>
+    <string name="income_type">Thu nhập</string>
+    <string name="enter_amount">Nhập số tiền</string>
+    <string name="category_label">Danh mục*</string>
+    <string name="transaction_date">Ngày giao dịch</string>
+    
+    <!-- AI Chat -->
+    <string name="ai_chat_title">AI Chat</string>
+    <string name="good_morning">Good morning, admin</string>
+    <string name="suggested_question_1">Tôi nên chi tiêu gì ?</string>
+    <string name="suggested_question_2">Nhận xét chi tiêu tháng qua .</string>
+    <string name="chat_input_hint">Nhập nội dung...</string>
+</resources>

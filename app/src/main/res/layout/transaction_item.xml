@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="36dp"
+    android:layout_marginVertical="2dp"
+    android:background="@drawable/transaction_item_background"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="12dp">
+
+    <!-- Category Icon -->
+    <ImageView
+        android:id="@+id/transaction_icon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_settings"
+        android:layout_marginEnd="12dp" />
+
+    <!-- Transaction Details -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/transaction_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Category"
+            android:textSize="10sp"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/transaction_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Description\nTime Date"
+            android:textSize="8sp"
+            android:textColor="@color/transaction_subtitle"
+            android:lineSpacingExtra="-2dp" />
+
+    </LinearLayout>
+
+    <!-- Transaction Amount -->
+    <TextView
+        android:id="@+id/transaction_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 VNĐ"
+        android:textSize="10sp"
+        android:textColor="@color/red_expense"
+        android:textStyle="bold" />
+
+</LinearLayout>
