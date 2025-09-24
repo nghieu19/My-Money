@@ -217,47 +217,47 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:padding="12dp"
                 android:layout_marginBottom="8dp"
-                android:background="@drawable/transaction_item_background">
+                android:background="@drawable/transaction_item_background"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="12dp">
 
                 <View
                     android:layout_width="12dp"
                     android:layout_height="12dp"
-                    android:background="@color/chart_orange"
-                    android:layout_marginEnd="12dp" />
+                    android:layout_marginEnd="12dp"
+                    android:background="@color/chart_orange" />
 
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_entertainment"
-                    android:layout_marginEnd="12dp" />
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/ic_entertainment" />
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/category_entertainment"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_primary" />
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
                     android:text="25%"
-                    android:textSize="14sp"
                     android:textColor="@color/text_secondary"
-                    android:layout_marginEnd="12dp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="4M VND"
+                    android:textColor="@color/text_primary"
                     android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary" />
+                    android:textStyle="bold" />
 
             </LinearLayout>
 
@@ -310,6 +310,14 @@
             </LinearLayout>
 
             <!-- Travel Category -->
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/category_travel"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -330,14 +338,6 @@
                     android:layout_height="24dp"
                     android:src="@drawable/ic_travel"
                     android:layout_marginEnd="12dp" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/category_travel"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_primary" />
 
                 <TextView
                     android:layout_width="wrap_content"

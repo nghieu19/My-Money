@@ -89,7 +89,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_marginStart="12dp"
-            android:src="@drawable/ic_settings"
+            android:src="@drawable/ic_filter"
             android:contentDescription="@string/filter" />
 
     </LinearLayout>
