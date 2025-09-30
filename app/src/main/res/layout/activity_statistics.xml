@@ -91,18 +91,15 @@
             android:orientation="vertical"
             android:gravity="center">
 
-            <!-- Simplified pie chart using colored circles -->
             <RelativeLayout
                 android:layout_width="160dp"
                 android:layout_height="160dp">
 
-                <!-- Background circle -->
                 <View
                     android:layout_width="160dp"
                     android:layout_height="160dp"
                     android:background="@drawable/circle_background" />
 
-                <!-- Center amount text -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -184,7 +181,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_study"
+                    android:src="@drawable/ic_home"
                     android:layout_marginEnd="12dp" />
 
                 <TextView
@@ -491,6 +488,7 @@
         android:id="@+id/bar_chart_container"
         android:layout_width="match_parent"
         android:layout_height="120dp"
+        android:baselineAligned="false"
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="16dp"
         android:orientation="horizontal"
@@ -549,7 +547,7 @@
 
             <View
                 android:layout_width="20dp"
-                android:layout_height="60dp"
+                android:layout_height="50dp"
                 android:background="@color/chart_orange" />
 
             <TextView
@@ -639,7 +637,7 @@
 
             <View
                 android:layout_width="20dp"
-                android:layout_height="68dp"
+                android:layout_height="55dp"
                 android:background="@color/chart_red" />
 
             <TextView

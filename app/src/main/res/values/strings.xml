@@ -79,4 +79,6 @@
     <string name="suggested_question_1">Tôi nên chi tiêu gì ?</string>
     <string name="suggested_question_2">Nhận xét chi tiêu tháng qua .</string>
     <string name="chat_input_hint">Nhập nội dung...</string>
+    <string name="mymoney">MyMoney</string>
+    <string name="settings">Settings</string>
 </resources>
