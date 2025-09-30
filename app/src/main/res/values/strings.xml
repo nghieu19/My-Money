@@ -81,4 +81,6 @@
     <string name="chat_input_hint">Nhập nội dung...</string>
     <string name="mymoney">MyMoney</string>
     <string name="settings">Settings</string>
+    <string name="wallet">Wallet</string>
+    <string name="pie_chart_description">Expense distribution pie chart</string>
 </resources>
