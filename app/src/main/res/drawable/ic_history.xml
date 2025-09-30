@@ -17,7 +17,6 @@
         android:strokeWidth="1.5"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:strokeDashArray="0.5,3"
         android:fillType="nonZero" />
     <path
         android:pathData="M13.604 9.72199C13.252 9.35199 12.391 8.48499 11.029 9.10199C9.668 9.71699 9.452 11.698 11.511 11.909C12.441 12.004 13.048 11.799 13.604 12.379C14.16 12.961 14.263 14.577 12.843 15.013C11.423 15.449 10.502 14.729 10.255 14.504M11.908 8.01999V8.80999M11.908 15.147V16.02"
