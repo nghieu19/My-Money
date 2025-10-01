@@ -38,10 +38,15 @@
             android:textStyle="bold" />
 
         <ImageView
-            android:layout_width="21dp"
-            android:layout_height="21dp"
-            android:src="@drawable/ic_settings"
-            android:contentDescription="Settings" />
+            android:id="@+id/btn_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="12dp"
+            android:clickable="true"
+            android:contentDescription="Setting"
+            android:focusable="true"
+            android:src="@drawable/ic_settings" />
 
     </LinearLayout>
 
