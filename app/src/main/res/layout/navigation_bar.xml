@@ -24,14 +24,6 @@
             android:layout_height="24dp"
             android:src="@drawable/ic_home" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/nav_home"
-            android:textSize="10sp"
-            android:textColor="@color/text_secondary"
-            android:layout_marginTop="2dp" />
-
     </LinearLayout>
 
     <!-- History Tab -->
@@ -49,15 +41,6 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_history" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/nav_history"
-            android:textSize="10sp"
-            android:textColor="@color/text_secondary"
-            android:layout_marginTop="2dp" />
-
     </LinearLayout>
 
     <!-- Import Tab -->
@@ -86,14 +69,6 @@
 
         </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Import"
-            android:textSize="10sp"
-            android:textColor="@color/text_secondary"
-            android:layout_marginTop="2dp" />
-
     </LinearLayout>
 
     <!-- AI Chat Tab -->
@@ -112,14 +87,6 @@
             android:layout_height="24dp"
             android:src="@drawable/ic_chat" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="AI Chat"
-            android:textSize="10sp"
-            android:textColor="@color/text_secondary"
-            android:layout_marginTop="2dp" />
-
     </LinearLayout>
 
     <!-- Statistics Tab -->
@@ -137,15 +104,6 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_statistics" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/nav_statistics"
-            android:textSize="10sp"
-            android:textColor="@color/text_secondary"
-            android:layout_marginTop="2dp" />
-
     </LinearLayout>
 
 </LinearLayout>
