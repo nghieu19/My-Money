@@ -9,8 +9,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mymoney.adapter.TransactionAdapter;
 import com.example.mymoney.database.AppDatabase;
+import com.example.mymoney.database.entity.Transaction;
 import com.example.mymoney.database.entity.Wallet;
 
 import java.text.SimpleDateFormat;
@@ -24,6 +28,8 @@ public class HomeFragment extends Fragment {
     private TextView balanceDate;
     private TextView expensesAmount;
     private TextView incomesAmount;
+    private RecyclerView recentTransactionsRecyclerView;
+    private TransactionAdapter transactionAdapter;
 
     @Nullable
     @Override
@@ -40,6 +46,10 @@ public class HomeFragment extends Fragment {
         balanceDate = view.findViewById(R.id.balance_date);
         expensesAmount = view.findViewById(R.id.expenses_amount);
         incomesAmount = view.findViewById(R.id.incomes_amount);
+        recentTransactionsRecyclerView = view.findViewById(R.id.recent_transactions_recycler_view);
+        
+        // Set up RecyclerView
+        setupRecyclerView();
         
         // Load wallet data
         loadWalletData();
@@ -50,6 +60,18 @@ public class HomeFragment extends Fragment {
         super.onResume();
         // Reload data when fragment becomes visible
         loadWalletData();
+    }
+    
+    private void setupRecyclerView() {
+        recentTransactionsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        transactionAdapter = new TransactionAdapter(
+            AppDatabase.getInstance(requireContext()),
+            transaction -> {
+                // Handle transaction click
+                android.util.Log.d("HomeFragment", "Clicked transaction: " + transaction.getId());
+            }
+        );
+        recentTransactionsRecyclerView.setAdapter(transactionAdapter);
     }
     
     private void loadWalletData() {
@@ -70,15 +92,25 @@ public class HomeFragment extends Fragment {
                 if (walletId != -1) {
                     Wallet wallet = db.walletDao().getWalletById(walletId);
                     
-                    // Calculate total expenses and incomes from transactions
+                    // Calculate total expenses and incomes from transactions FOR THIS WALLET
                     double totalExpenses = db.transactionDao().getTotalExpensesByWallet(walletId);
                     double totalIncomes = db.transactionDao().getTotalIncomeByWallet(walletId);
+                    
+                    // Get recent transactions FOR THIS WALLET (limit to 5)
+                    List<Transaction> allTransactions = db.transactionDao().getTransactionsByWalletId(walletId);
+                    List<Transaction> recentTransactions = allTransactions.size() > 5 
+                        ? allTransactions.subList(0, 5) 
+                        : allTransactions;
+                    
+                    android.util.Log.d("HomeFragment", "Loading wallet ID: " + walletId + 
+                        ", transactions: " + recentTransactions.size());
                     
                     // Update UI on main thread
                     if (getActivity() != null) {
                         final Wallet finalWallet = wallet;
                         final double finalExpenses = totalExpenses;
                         final double finalIncomes = totalIncomes;
+                        final List<Transaction> finalTransactions = recentTransactions;
                         
                         getActivity().runOnUiThread(() -> {
                             if (finalWallet != null) {
@@ -96,6 +128,11 @@ public class HomeFragment extends Fragment {
                             // Set current date
                             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                             balanceDate.setText(sdf.format(new Date()));
+                            
+                            // Update recent transactions
+                            transactionAdapter.setTransactions(finalTransactions);
+                            
+                            android.util.Log.d("HomeFragment", "UI updated with " + finalTransactions.size() + " transactions");
                         });
                     }
                 } else {
@@ -108,12 +145,23 @@ public class HomeFragment extends Fragment {
                             
                             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                             balanceDate.setText(sdf.format(new Date()));
+                            
+                            // Clear recent transactions
+                            transactionAdapter.setTransactions(new java.util.ArrayList<>());
                         });
                     }
                 }
             } catch (Exception e) {
+                android.util.Log.e("HomeFragment", "Error loading wallet data", e);
                 e.printStackTrace();
             }
         }).start();
+    }
+    
+    /**
+     * Public method to refresh data from outside (e.g., after importing transaction)
+     */
+    public void refreshData() {
+        loadWalletData();
     }
 }

@@ -91,6 +91,11 @@ public class MainActivity extends AppCompatActivity {
             AppDatabase db = AppDatabase.getInstance(this);
             List<Wallet> wallets = db.walletDao().getActiveWalletsByUserId(DEFAULT_USER_ID); // Default user ID
             
+            android.util.Log.d("MainActivity", "Loaded " + wallets.size() + " wallets from database");
+            for (Wallet w : wallets) {
+                android.util.Log.d("MainActivity", "  - Wallet: " + w.getName() + " (ID: " + w.getId() + ")");
+            }
+            
             runOnUiThread(() -> {
                 // Clear existing wallet items (except add wallet button)
                 walletListContainer.removeAllViews();
@@ -99,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
                 for (Wallet wallet : wallets) {
                     addWalletItemToPanel(wallet);
                 }
+                
+                android.util.Log.d("MainActivity", "Wallet items added to panel");
             });
         }).start();
     }
@@ -107,12 +114,24 @@ public class MainActivity extends AppCompatActivity {
      * Add a wallet item to the panel
      */
     private void addWalletItemToPanel(Wallet wallet) {
-        LinearLayout walletItem = (LinearLayout) getLayoutInflater()
+        View walletItemView = getLayoutInflater()
             .inflate(R.layout.wallet_item, walletListContainer, false);
         
-        ImageView icon = walletItem.findViewById(R.id.wallet_icon);
-        TextView name = walletItem.findViewById(R.id.wallet_name);
-        TextView balance = walletItem.findViewById(R.id.wallet_balance);
+        // Find the clickable inner LinearLayout (the one with background)
+        LinearLayout clickableArea = (LinearLayout) walletItemView.findViewById(R.id.wallet_clickable_area);
+        if (clickableArea == null) {
+            // Fallback: try to find the first child LinearLayout
+            if (walletItemView instanceof LinearLayout) {
+                LinearLayout parent = (LinearLayout) walletItemView;
+                if (parent.getChildCount() > 0 && parent.getChildAt(0) instanceof LinearLayout) {
+                    clickableArea = (LinearLayout) parent.getChildAt(0);
+                }
+            }
+        }
+        
+        ImageView icon = walletItemView.findViewById(R.id.wallet_icon);
+        TextView name = walletItemView.findViewById(R.id.wallet_name);
+        TextView balance = walletItemView.findViewById(R.id.wallet_balance);
         
         name.setText(wallet.getName());
         balance.setText(String.format("%,.0f %s", wallet.getBalance(), wallet.getCurrency()));
@@ -120,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         // Set icon based on wallet type
         switch (wallet.getType()) {
             case "cash":
-                icon.setImageResource(R.drawable.ic_money_bag);
+                icon.setImageResource(R.drawable.ic_money_bundle);
                 break;
             case "bank":
                 icon.setImageResource(R.drawable.ic_bankcard);
@@ -133,22 +152,51 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         
-        walletItem.setOnClickListener(v -> {
+        // Set click listener on the clickable area, not the root
+        View finalClickableArea = clickableArea != null ? clickableArea : walletItemView;
+        finalClickableArea.setOnClickListener(v -> {
+            android.util.Log.d("MainActivity", "Wallet item clicked!");
             hideWalletPanel();
+            int oldWalletId = selectedWalletId;
             selectedWalletId = wallet.getId();
+            
+            android.util.Log.d("MainActivity", "Wallet switched: " + oldWalletId + " -> " + selectedWalletId);
+            android.util.Log.d("MainActivity", "Selected wallet: " + wallet.getName());
+            
             Toast.makeText(this, "Selected: " + wallet.getName(), Toast.LENGTH_SHORT).show();
             
-            // Reload current fragment with new wallet data
-            Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_container);
+            // Refresh current fragment with new wallet data
+            refreshCurrentFragment();
+        });
+        
+        walletListContainer.addView(walletItemView);
+    }
+    
+    /**
+     * Refresh the current fragment to reflect wallet changes
+     */
+    private void refreshCurrentFragment() {
+        Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_container);
+        
+        android.util.Log.d("MainActivity", "Refreshing fragment: " + 
+            (currentFragment != null ? currentFragment.getClass().getSimpleName() : "null"));
+        
+        if (currentFragment instanceof HomeFragment) {
+            android.util.Log.d("MainActivity", "Calling HomeFragment.refreshData()");
+            ((HomeFragment) currentFragment).refreshData();
+        } else if (currentFragment instanceof HistoryFragment) {
+            android.util.Log.d("MainActivity", "Calling HistoryFragment.refreshData()");
+            ((HistoryFragment) currentFragment).refreshData();
+        } else {
+            // For other fragments, use detach/attach
+            android.util.Log.d("MainActivity", "Using detach/attach for fragment refresh");
             if (currentFragment != null) {
                 fragmentManager.beginTransaction()
                     .detach(currentFragment)
                     .attach(currentFragment)
                     .commit();
             }
-        });
-        
-        walletListContainer.addView(walletItem);
+        }
     }
 
     private void toggleWalletPanel() {

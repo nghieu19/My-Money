@@ -177,4 +177,11 @@ public class HistoryFragment extends Fragment {
             }
         }).start();
     }
+    
+    /**
+     * Public method to refresh data from outside (e.g., after importing transaction)
+     */
+    public void refreshData() {
+        loadTransactions();
+    }
 }

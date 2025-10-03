@@ -454,10 +454,22 @@ public class ImportFragment extends Fragment {
     }
     
     private void refreshHomeFragment() {
-        // Notify MainActivity to refresh fragments
+        // Refresh HomeFragment and HistoryFragment after saving transaction
         if (getActivity() instanceof MainActivity) {
-            // HomeFragment will reload in onResume when user switches back to it
-            android.util.Log.d("ImportFragment", "Transaction saved, HomeFragment will refresh on resume");
+            MainActivity mainActivity = (MainActivity) getActivity();
+            androidx.fragment.app.FragmentManager fragmentManager = mainActivity.getSupportFragmentManager();
+            
+            // Find and refresh HomeFragment if it exists
+            for (androidx.fragment.app.Fragment fragment : fragmentManager.getFragments()) {
+                if (fragment instanceof HomeFragment && fragment.isAdded()) {
+                    ((HomeFragment) fragment).refreshData();
+                    android.util.Log.d("ImportFragment", "HomeFragment refreshed");
+                }
+                if (fragment instanceof HistoryFragment && fragment.isAdded()) {
+                    ((HistoryFragment) fragment).refreshData();
+                    android.util.Log.d("ImportFragment", "HistoryFragment refreshed");
+                }
+            }
         }
     }
     
