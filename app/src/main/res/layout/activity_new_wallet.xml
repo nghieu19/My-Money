@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <!-- Header with back button and title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/mint_green"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp">
+
+        <!-- Back button -->
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_backward"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            app:tint="@color/black" />
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/new_wallet"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:gravity="center"
+            android:layout_marginEnd="24dp" />
+
+    </LinearLayout>
+
+    <!-- Wallet options -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Cash option -->
+        <LinearLayout
+            android:id="@+id/option_cash"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="1dp">
+
+            <!-- Cash icon -->
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_money_bundle"
+                android:layout_marginEnd="16dp" />
+
+            <!-- Cash text -->
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/cash"
+                android:textSize="16sp"
+                android:textColor="@color/black" />
+
+            <!-- Arrow icon -->
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_dropdown_arrow"
+                android:rotation="270"
+                app:tint="@color/gray_text" />
+
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_gray"
+            android:layout_marginHorizontal="16dp" />
+
+        <!-- Bank account option -->
+        <LinearLayout
+            android:id="@+id/option_bank_account"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="1dp">
+
+            <!-- Bank card icon -->
+
+            <!-- Bank account text -->
+            <ImageView
+                android:layout_width="44dp"
+                android:layout_height="29dp"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_bankcard" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/bank_account"
+                android:textSize="16sp"
+                android:textColor="@color/black" />
+
+            <!-- Arrow icon -->
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_dropdown_arrow"
+                android:rotation="270"
+                app:tint="@color/gray_text" />
+
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_gray"
+            android:layout_marginHorizontal="16dp" />
+
+        <!-- Virtual account option -->
+        <LinearLayout
+            android:id="@+id/option_virtual_account"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:paddingHorizontal="16dp">
+
+            <!-- Virtual account icon -->
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_virtual_account"
+                android:layout_marginEnd="16dp" />
+
+            <!-- Virtual account text -->
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/virtual_account"
+                android:textSize="16sp"
+                android:textColor="@color/black" />
+
+            <!-- Arrow icon -->
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_dropdown_arrow"
+                android:rotation="270"
+                app:tint="@color/gray_text" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

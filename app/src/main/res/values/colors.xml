@@ -10,8 +10,12 @@
     
     <!-- App specific colors -->
     <color name="primary_green">#0c7c65</color>
+    <color name="mint_green">#A8E6CF</color>
+    <color name="light_mint_green">#B5EDD8</color>
     <color name="red_expense">#c50000</color>
+    <color name="expense_red">#c50000</color>
     <color name="green_income">#00ce0e</color>
+    <color name="income_green">#00ce0e</color>
     <color name="gray_text">#666666</color>
     <color name="light_gray">#f5f5f5</color>
     

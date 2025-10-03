@@ -83,4 +83,36 @@
     <string name="settings">Settings</string>
     <string name="wallet">Wallet</string>
     <string name="pie_chart_description">Expense distribution pie chart</string>
+    
+    <!-- Wallet Related -->
+    <string name="new_wallet">New wallet</string>
+    <string name="add_wallet">Add wallet</string>
+    <string name="cash">Cash</string>
+    <string name="bank_account">Bank account</string>
+    <string name="virtual_account">Virtual account</string>
+    <string name="wallet_info">Wallet info</string>
+    <string name="wallet_name">Wallet name</string>
+    <string name="balance">Balance</string>
+    <string name="currency">Currency</string>
+    <string name="note">Note</string>
+    <string name="enter_account_name">Enter account name</string>
+    <string name="enter_amount2">Enter amount</string>
+    <string name="select_currency">Select currency</string>
+    <string name="write_note_here">Write note here</string>
+    
+    <!-- Import Transaction -->
+    <string name="repeat">Lặp lại</string>
+    <string name="repeat_yes">Có</string>
+    <string name="repeat_no">Không</string>
+    <string name="recurring_cycle">Vòng lặp</string>
+    <string name="monthly">Monthly</string>
+    <string name="weekly">Weekly</string>
+    <string name="yearly">Yearly</string>
+    <string name="daily">Daily</string>
+    <string name="notes">Ghi chú</string>
+    <string name="save">Lưu</string>
+    <string name="enter_notes">Nhập ghi chú...</string>
+    
+    <!-- Transaction -->
+    <string name="transaction_icon">Transaction icon</string>
 </resources>
