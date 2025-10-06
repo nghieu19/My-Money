@@ -100,6 +100,8 @@ public class HistoryFragment extends Fragment {
     }
     
     private void loadTransactions() {
+        android.util.Log.d("HistoryFragment", "loadTransactions() called - Current user: " + MainActivity.getCurrentUserId() + ", Selected wallet: " + MainActivity.getSelectedWalletId());
+        
         new Thread(() -> {
             try {
                 AppDatabase db = AppDatabase.getInstance(requireContext());
@@ -108,9 +110,11 @@ public class HistoryFragment extends Fragment {
                 // If no wallet selected, get all transactions for user
                 List<Transaction> transactions;
                 if (walletId == -1) {
-                    transactions = db.transactionDao().getTransactionsByUserId(MainActivity.DEFAULT_USER_ID);
+                    transactions = db.transactionDao().getTransactionsByUserId(MainActivity.getCurrentUserId());
+                    android.util.Log.d("HistoryFragment", "Loading all transactions for user " + MainActivity.getCurrentUserId() + ": " + transactions.size() + " found");
                 } else {
                     transactions = db.transactionDao().getTransactionsByWalletId(walletId);
+                    android.util.Log.d("HistoryFragment", "Loading transactions for wallet " + walletId + ": " + transactions.size() + " found");
                 }
                 
                 allTransactions = transactions;
@@ -182,6 +186,7 @@ public class HistoryFragment extends Fragment {
      * Public method to refresh data from outside (e.g., after importing transaction)
      */
     public void refreshData() {
+        android.util.Log.d("HistoryFragment", "refreshData() called from MainActivity");
         loadTransactions();
     }
 }

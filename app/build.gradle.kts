@@ -39,6 +39,10 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
+    
+    // ML Kit Text Recognition for OCR
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

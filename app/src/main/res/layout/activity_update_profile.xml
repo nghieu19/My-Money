@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Tiêu đề -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Update personal information"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Họ và Tên -->
+        <EditText
+            android:id="@+id/etFullName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Fullname"
+            android:inputType="textPersonName"
+            android:background="@drawable/search_background"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Số điện thoại -->
+        <EditText
+            android:id="@+id/etPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Phone Number"
+            android:inputType="phone"
+            android:background="@drawable/search_background"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Ngày sinh -->
+        <EditText
+            android:id="@+id/etDob"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Date of Birth (dd/MM/yyyy)"
+            android:focusable="false"
+            android:inputType="date"
+            android:background="@drawable/search_background"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Email -->
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:background="@drawable/search_background"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Nghề nghiệp -->
+        <EditText
+            android:id="@+id/etJob"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Job"
+            android:inputType="text"
+            android:background="@drawable/search_background"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Địa chỉ -->
+        <EditText
+            android:id="@+id/etAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Address"
+            android:inputType="textPostalAddress"
+            android:background="@drawable/search_background"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Nút Lưu -->
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="161dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary_green"
+            android:padding="12dp"
+            android:text="Save"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="0dp"
+            android:layout_marginLeft="110dp"/>
+
+    </LinearLayout>
+</ScrollView>

@@ -75,6 +75,8 @@ public class HomeFragment extends Fragment {
     }
     
     private void loadWalletData() {
+        android.util.Log.d("HomeFragment", "loadWalletData() called - Current user: " + MainActivity.getCurrentUserId() + ", Selected wallet: " + MainActivity.getSelectedWalletId());
+        
         new Thread(() -> {
             try {
                 AppDatabase db = AppDatabase.getInstance(requireContext());
@@ -82,10 +84,12 @@ public class HomeFragment extends Fragment {
                 
                 // If no wallet selected, use the first available wallet
                 if (walletId == -1) {
-                    List<Wallet> wallets = db.walletDao().getActiveWalletsByUserId(MainActivity.DEFAULT_USER_ID);
+                    List<Wallet> wallets = db.walletDao().getActiveWalletsByUserId(MainActivity.getCurrentUserId());
+                    android.util.Log.d("HomeFragment", "No wallet selected. Found " + wallets.size() + " wallets for user " + MainActivity.getCurrentUserId());
                     if (!wallets.isEmpty()) {
                         walletId = wallets.get(0).getId();
                         MainActivity.setSelectedWalletId(walletId);
+                        android.util.Log.d("HomeFragment", "Auto-selected first wallet: ID " + walletId);
                     }
                 }
                 
@@ -137,6 +141,7 @@ public class HomeFragment extends Fragment {
                     }
                 } else {
                     // No wallet available
+                    android.util.Log.d("HomeFragment", "No wallet available for user " + MainActivity.getCurrentUserId());
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
                             balanceAmount.setText("0 VND");
@@ -148,6 +153,7 @@ public class HomeFragment extends Fragment {
                             
                             // Clear recent transactions
                             transactionAdapter.setTransactions(new java.util.ArrayList<>());
+                            android.util.Log.d("HomeFragment", "UI cleared - no wallet data");
                         });
                     }
                 }
@@ -162,6 +168,7 @@ public class HomeFragment extends Fragment {
      * Public method to refresh data from outside (e.g., after importing transaction)
      */
     public void refreshData() {
+        android.util.Log.d("HomeFragment", "refreshData() called from MainActivity");
         loadWalletData();
     }
 }

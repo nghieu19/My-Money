@@ -1,8 +1,14 @@
 package com.example.mymoney;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +24,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,11 +38,18 @@ import com.example.mymoney.adapter.CategoryAdapter;
 import com.example.mymoney.database.AppDatabase;
 import com.example.mymoney.database.entity.Category;
 import com.example.mymoney.database.entity.Transaction;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ImportFragment extends Fragment {
 
@@ -46,6 +63,13 @@ public class ImportFragment extends Fragment {
     private LinearLayout recurringSection;
     private Spinner recurringSpinner;
     private Button saveButton;
+    
+    // OCR related fields
+    private LinearLayout btnCamera;
+    private ActivityResultLauncher<Intent> cameraLauncher;
+    private ActivityResultLauncher<Intent> galleryLauncher;
+    private Uri imageUri;
+    private static final int CAMERA_PERMISSION_CODE = 100;
     
     private String selectedType = "expense"; // Default to expense
     private Calendar selectedDate;
@@ -61,6 +85,9 @@ public class ImportFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        
+        // Initialize OCR launchers first
+        setupOCRLaunchers();
         
         // Initialize views
         expenseSelector = view.findViewById(R.id.expense_selector);
@@ -78,6 +105,7 @@ public class ImportFragment extends Fragment {
         recurringSection = view.findViewById(R.id.recurring_section);
         recurringSpinner = view.findViewById(R.id.recurring_spinner);
         saveButton = view.findViewById(R.id.save_button);
+        btnCamera = view.findViewById(R.id.btnCamera);
         
         // Initialize selected date to today
         selectedDate = Calendar.getInstance();
@@ -88,6 +116,9 @@ public class ImportFragment extends Fragment {
         
         // Set up click listeners
         setupListeners();
+        
+        // Set up OCR button
+        setupOCRButton();
         
         // Load default category from database
         loadDefaultCategory();
@@ -328,7 +359,7 @@ public class ImportFragment extends Fragment {
         if (walletId == -1) {
             new Thread(() -> {
                 AppDatabase db = AppDatabase.getInstance(requireContext());
-                var wallets = db.walletDao().getActiveWalletsByUserId(MainActivity.DEFAULT_USER_ID);
+                var wallets = db.walletDao().getActiveWalletsByUserId(MainActivity.getCurrentUserId());
                 if (!wallets.isEmpty()) {
                     MainActivity.setSelectedWalletId(wallets.get(0).getId());
                     if (getActivity() != null) {
@@ -378,7 +409,7 @@ public class ImportFragment extends Fragment {
         Transaction transaction = new Transaction();
         transaction.setWalletId(MainActivity.getSelectedWalletId());
         transaction.setCategoryId(selectedCategoryId);
-        transaction.setUserId(MainActivity.DEFAULT_USER_ID);
+        transaction.setUserId(MainActivity.getCurrentUserId());
         transaction.setAmount(amount);
         transaction.setDescription(notesInput.getText().toString().trim());
         transaction.setType(selectedType);
@@ -482,5 +513,277 @@ public class ImportFragment extends Fragment {
         updateDateDisplay();
         selectedType = "expense";
         selectTransactionType("expense");
+    }
+    
+    // ==================== OCR Methods ====================
+    
+    /**
+     * Setup OCR activity result launchers
+     */
+    private void setupOCRLaunchers() {
+        // Launcher for Camera
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == requireActivity().RESULT_OK) {
+                        if (imageUri != null) {
+                            Toast.makeText(requireContext(), "Ảnh đã chụp xong!", Toast.LENGTH_SHORT).show();
+                            processImage(imageUri);
+                        }
+                    }
+                }
+        );
+
+        // Launcher for Gallery
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == requireActivity().RESULT_OK && result.getData() != null) {
+                        Uri selectedImage = result.getData().getData();
+                        Toast.makeText(requireContext(), "Đã chọn ảnh từ thư viện!", Toast.LENGTH_SHORT).show();
+                        processImage(selectedImage);
+                    }
+                }
+        );
+    }
+    
+    /**
+     * Setup OCR button click listener
+     */
+    private void setupOCRButton() {
+        if (btnCamera != null) {
+            btnCamera.setOnClickListener(v -> {
+                String[] options = {"Chụp ảnh", "Chọn từ thư viện"};
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Nhập dữ liệu bằng ảnh")
+                        .setItems(options, (dialog, which) -> {
+                            if (which == 0) {
+                                checkCameraPermissionAndOpen();
+                            } else {
+                                openGallery();
+                            }
+                        })
+                        .show();
+            });
+        }
+    }
+    
+    /**
+     * Check camera permission and open camera
+     */
+    private void checkCameraPermissionAndOpen() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+
+            requestPermissions(new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        } else {
+            openCamera();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openCamera();
+            } else {
+                Toast.makeText(requireContext(), "Bạn cần cấp quyền Camera để chụp ảnh!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    /**
+     * Open camera to capture image
+     */
+    private void openCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File photoFile = new File(requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "temp.jpg");
+        imageUri = FileProvider.getUriForFile(requireContext(),
+                requireContext().getPackageName() + ".fileprovider", photoFile);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        cameraLauncher.launch(intent);
+    }
+
+    /**
+     * Open gallery to select image
+     */
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        galleryLauncher.launch(intent);
+    }
+
+    /**
+     * Process image using ML Kit OCR
+     */
+    private void processImage(Uri uri) {
+        try {
+            InputImage image = InputImage.fromFilePath(requireContext(), uri);
+            TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+
+            recognizer.process(image)
+                    .addOnSuccessListener(visionText -> {
+                        String rawText = visionText.getText();
+                        Toast.makeText(requireContext(), "OCR thành công!", Toast.LENGTH_SHORT).show();
+                        handleExtractedText(rawText);
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(requireContext(), "Lỗi OCR: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(requireContext(), "Lỗi xử lý ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Extract transaction data from OCR text
+     */
+    private void handleExtractedText(String text) {
+        String type = "";
+        String category = "";
+        String date = "";
+        String amount = "";
+
+        // 1. Transaction type detection
+        if (text.toLowerCase().contains("chi tiêu") || text.toLowerCase().contains("expense")) {
+            type = "expense";
+        } else if (text.toLowerCase().contains("thu nhập") || text.toLowerCase().contains("income")) {
+            type = "income";
+        }
+
+        // 2. Amount detection
+        Pattern amountPattern = Pattern.compile("(\\d+[,.]?\\d*)");
+        Matcher amountMatcher = amountPattern.matcher(text);
+        if (amountMatcher.find()) {
+            amount = amountMatcher.group(1).replace(",", "");
+        }
+
+        // 3. Date detection
+        Pattern datePattern = Pattern.compile("(\\d{1,2}[/-]\\d{1,2}[/-]\\d{2,4})");
+        Matcher dateMatcher = datePattern.matcher(text);
+        if (dateMatcher.find()) {
+            date = dateMatcher.group(1);
+            parseAndSetDate(date);
+        }
+
+        // 4. Category detection (simplified - matches with existing categories)
+        String textLower = text.toLowerCase();
+        if (textLower.contains("food") || textLower.contains("ăn")) {
+            category = "Food";
+        } else if (textLower.contains("transport") || textLower.contains("xe")) {
+            category = "Transport";
+        } else if (textLower.contains("home") || textLower.contains("nhà")) {
+            category = "Home";
+        } else if (textLower.contains("entertainment") || textLower.contains("giải trí")) {
+            category = "Entertainment";
+        } else if (textLower.contains("salary") || textLower.contains("lương")) {
+            category = "Salary";
+        } else if (textLower.contains("business") || textLower.contains("kinh doanh")) {
+            category = "Business";
+        } else {
+            category = "Others";
+        }
+
+        // Fill the form with extracted data
+        fillFormFromOCR(type, amount, category, date);
+    }
+
+    /**
+     * Parse date string and set selectedDate
+     */
+    private void parseAndSetDate(String dateString) {
+        try {
+            SimpleDateFormat sdf;
+            if (dateString.contains("/")) {
+                sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            } else {
+                sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+            }
+            
+            selectedDate.setTime(sdf.parse(dateString));
+            updateDateDisplay();
+        } catch (Exception e) {
+            android.util.Log.e("ImportFragment", "Error parsing date: " + dateString, e);
+        }
+    }
+
+    /**
+     * Fill form with OCR extracted data
+     */
+    private void fillFormFromOCR(String type, String amount, String categoryName, String date) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                // Set transaction type
+                if (!type.isEmpty()) {
+                    selectedType = type;
+                    selectTransactionType(type);
+                    loadCategoriesForType(type);
+                }
+                
+                // Set amount
+                if (!amount.isEmpty()) {
+                    amountInput.setText(amount);
+                }
+                
+                // Set category by name (need to find category in database)
+                if (!categoryName.isEmpty()) {
+                    findAndSetCategory(categoryName);
+                }
+                
+                // Show extracted data to user
+                Toast.makeText(requireContext(),
+                        "Dữ liệu đã được trích xuất:\n" +
+                        "Loại: " + (type.isEmpty() ? "Chưa xác định" : (type.equals("expense") ? "Chi tiêu" : "Thu nhập")) + "\n" +
+                        "Số tiền: " + (amount.isEmpty() ? "Chưa xác định" : amount) + "\n" +
+                        "Danh mục: " + (categoryName.isEmpty() ? "Chưa xác định" : categoryName),
+                        Toast.LENGTH_LONG).show();
+            });
+        }
+    }
+    
+    /**
+     * Find and set category by name
+     */
+    private void findAndSetCategory(String categoryName) {
+        new Thread(() -> {
+            try {
+                AppDatabase db = AppDatabase.getInstance(requireContext());
+                List<Category> categories;
+                
+                if (selectedType.equals("expense")) {
+                    categories = db.categoryDao().getAllExpenseCategories();
+                } else {
+                    categories = db.categoryDao().getAllIncomeCategories();
+                }
+                
+                // Find matching category
+                Category matchedCategory = null;
+                for (Category cat : categories) {
+                    if (cat.getName().equalsIgnoreCase(categoryName)) {
+                        matchedCategory = cat;
+                        break;
+                    }
+                }
+                
+                if (matchedCategory != null) {
+                    Category finalCategory = matchedCategory;
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            selectedCategory = finalCategory;
+                            selectedCategoryId = finalCategory.getId();
+                            updateCategoryDisplay();
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                android.util.Log.e("ImportFragment", "Error finding category: " + categoryName, e);
+            }
+        }).start();
     }
 }

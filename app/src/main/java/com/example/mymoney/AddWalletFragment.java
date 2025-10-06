@@ -17,6 +17,8 @@ import androidx.fragment.app.Fragment;
 import com.example.mymoney.database.AppDatabase;
 import com.example.mymoney.database.entity.Wallet;
 
+import java.util.Objects;
+
 /**
  * AddWalletFragment - Shows the wallet information input form
  * This is the second step in the wallet creation pipeline
@@ -25,7 +27,6 @@ import com.example.mymoney.database.entity.Wallet;
 public class AddWalletFragment extends Fragment {
 
     private static final String ARG_WALLET_TYPE = "wallet_type";
-    private static final int DEFAULT_USER_ID = 1; // Default user ID (matches the auto-created user)
 
     private ImageView btnBack;
     private ImageView btnSave;
@@ -74,6 +75,30 @@ public class AddWalletFragment extends Fragment {
         
         initializeViews(view);
         setupListeners();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        
+        // Hide main header and footer when this fragment becomes visible
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).hideMainHeaderAndFooter();
+        }
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        
+        // Only show header/footer if we're leaving the wallet creation flow entirely
+        // Check if the next fragment is NOT a wallet creation fragment
+        if (getActivity() != null && isRemoving()) {
+            // Fragment is being removed (back button pressed to leave wallet creation)
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).showMainHeaderAndFooter();
+            }
+        }
     }
 
     private void initializeViews(View view) {
@@ -173,7 +198,7 @@ public class AddWalletFragment extends Fragment {
             wallet.setBalance(balance);
             wallet.setDescription(note);
             wallet.setActive(true);
-            wallet.setUserId(DEFAULT_USER_ID); // Use default user created on app initialization
+            wallet.setUserId(MainActivity.getCurrentUserId()); // Use current logged-in user
             
             // Insert wallet in background thread
             AppDatabase db = AppDatabase.getInstance(getContext());

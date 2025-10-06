@@ -43,6 +43,30 @@ public class NewWalletFragment extends Fragment {
         setupListeners();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        
+        // Hide main header and footer when this fragment becomes visible
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).hideMainHeaderAndFooter();
+        }
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        
+        // Only show header/footer if we're leaving the wallet creation flow entirely
+        // Check if the next fragment is NOT a wallet creation fragment
+        if (getActivity() != null && isRemoving()) {
+            // Fragment is being removed (back button pressed to leave wallet creation)
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).showMainHeaderAndFooter();
+            }
+        }
+    }
+
     private void initializeViews(View view) {
         btnBack = view.findViewById(R.id.btn_back);
         optionCash = view.findViewById(R.id.option_cash);
