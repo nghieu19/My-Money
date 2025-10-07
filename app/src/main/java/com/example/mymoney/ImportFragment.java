@@ -650,49 +650,69 @@ public class ImportFragment extends Fragment {
         String date = "";
         String amount = "";
 
-        // 1. Transaction type detection
-        if (text.toLowerCase().contains("chi tiêu") || text.toLowerCase().contains("expense")) {
+        // Làm sạch text OCR
+        String cleanedText = text.replaceAll("[^\\dA-Za-zÀ-ỹ\\s/\\-.,]", " ").toLowerCase(Locale.ROOT);
+        android.util.Log.d("OCR_TEXT", "Raw: " + text);
+        android.util.Log.d("OCR_TEXT", "Cleaned: " + cleanedText);
+
+        // 1️⃣ Nhận diện loại giao dịch
+        if (cleanedText.contains("chi") || cleanedText.contains("expense")) {
             type = "expense";
-        } else if (text.toLowerCase().contains("thu nhập") || text.toLowerCase().contains("income")) {
+        } else if (cleanedText.contains("thu") || cleanedText.contains("income")) {
             type = "income";
         }
 
-        // 2. Amount detection
-        Pattern amountPattern = Pattern.compile("(\\d+[,.]?\\d*)");
-        Matcher amountMatcher = amountPattern.matcher(text);
-        if (amountMatcher.find()) {
-            amount = amountMatcher.group(1).replace(",", "");
+        // 2️⃣ Nhận diện số tiền (ưu tiên số lớn nhất)
+        // 2️⃣ Nhận diện số tiền chính xác hơn (tìm số dài nhất, bỏ dấu và VND)
+        Pattern amountPattern = Pattern.compile("(\\d{3,}(?:[.,]\\d{3,})*)");
+        Matcher matcher = amountPattern.matcher(text.replaceAll("[^0-9.,]", " "));
+        String longestNum = "";
+        while (matcher.find()) {
+            String numStr = matcher.group(1);
+            if (numStr.length() > longestNum.length()) {
+                longestNum = numStr;
+            }
         }
 
-        // 3. Date detection
-        Pattern datePattern = Pattern.compile("(\\d{1,2}[/-]\\d{1,2}[/-]\\d{2,4})");
+        if (!longestNum.isEmpty()) {
+            // Xóa dấu chấm, dấu phẩy và ký tự tiền tệ
+            String cleaned = longestNum.replaceAll("[.,]", "").replaceAll("[^0-9]", "");
+            try {
+                long value = Long.parseLong(cleaned);
+                amount = String.valueOf(value);
+            } catch (NumberFormatException ignored) {}
+        }
+
+
+        // 3️⃣ Nhận diện ngày
+        Pattern datePattern = Pattern.compile("(\\d{1,2}[\\-/]\\d{1,2}[\\-/]\\d{2,4})");
         Matcher dateMatcher = datePattern.matcher(text);
         if (dateMatcher.find()) {
             date = dateMatcher.group(1);
             parseAndSetDate(date);
         }
 
-        // 4. Category detection (simplified - matches with existing categories)
-        String textLower = text.toLowerCase();
-        if (textLower.contains("food") || textLower.contains("ăn")) {
+        // 4️⃣ Nhận diện danh mục
+        if (cleanedText.contains("ăn") || cleanedText.contains("food")) {
             category = "Food";
-        } else if (textLower.contains("transport") || textLower.contains("xe")) {
+        } else if (cleanedText.contains("xe") || cleanedText.contains("transport")) {
             category = "Transport";
-        } else if (textLower.contains("home") || textLower.contains("nhà")) {
+        } else if (cleanedText.contains("nhà") || cleanedText.contains("home")) {
             category = "Home";
-        } else if (textLower.contains("entertainment") || textLower.contains("giải trí")) {
+        } else if (cleanedText.contains("giải trí") || cleanedText.contains("entertainment")) {
             category = "Entertainment";
-        } else if (textLower.contains("salary") || textLower.contains("lương")) {
+        } else if (cleanedText.contains("lương") || cleanedText.contains("salary")) {
             category = "Salary";
-        } else if (textLower.contains("business") || textLower.contains("kinh doanh")) {
+        } else if (cleanedText.contains("kinh doanh") || cleanedText.contains("business")) {
             category = "Business";
         } else {
             category = "Others";
         }
 
-        // Fill the form with extracted data
+        // ✅ Gọi hàm hiển thị confirm dialog
         fillFormFromOCR(type, amount, category, date);
     }
+
 
     /**
      * Parse date string and set selectedDate
@@ -719,30 +739,7 @@ public class ImportFragment extends Fragment {
     private void fillFormFromOCR(String type, String amount, String categoryName, String date) {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
-                // Set transaction type
-                if (!type.isEmpty()) {
-                    selectedType = type;
-                    selectTransactionType(type);
-                    loadCategoriesForType(type);
-                }
-                
-                // Set amount
-                if (!amount.isEmpty()) {
-                    amountInput.setText(amount);
-                }
-                
-                // Set category by name (need to find category in database)
-                if (!categoryName.isEmpty()) {
-                    findAndSetCategory(categoryName);
-                }
-                
-                // Show extracted data to user
-                Toast.makeText(requireContext(),
-                        "Dữ liệu đã được trích xuất:\n" +
-                        "Loại: " + (type.isEmpty() ? "Chưa xác định" : (type.equals("expense") ? "Chi tiêu" : "Thu nhập")) + "\n" +
-                        "Số tiền: " + (amount.isEmpty() ? "Chưa xác định" : amount) + "\n" +
-                        "Danh mục: " + (categoryName.isEmpty() ? "Chưa xác định" : categoryName),
-                        Toast.LENGTH_LONG).show();
+                showOCRConfirmDialog(type, amount, categoryName, date);
             });
         }
     }
@@ -786,4 +783,55 @@ public class ImportFragment extends Fragment {
             }
         }).start();
     }
+    /**
+     * Hiển thị hộp xác nhận trước khi lưu dữ liệu OCR vào CSDL
+     */
+    private void showOCRConfirmDialog(String type, String amount, String categoryName, String date) {
+        if (getActivity() == null) return;
+
+        Dialog dialog = new Dialog(requireContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_ocr_confirm);
+
+        TextView tvType = dialog.findViewById(R.id.tvType);
+        TextView tvAmount = dialog.findViewById(R.id.tvAmount);
+        TextView tvCategory = dialog.findViewById(R.id.tvCategory);
+        TextView tvDate = dialog.findViewById(R.id.tvDate);
+        EditText etNote = dialog.findViewById(R.id.etNote);
+        Button btnConfirm = dialog.findViewById(R.id.btnConfirm);
+        Button btnCancel = dialog.findViewById(R.id.btnCancel);
+
+        // Gán dữ liệu OCR vào giao diện
+        tvType.setText(type.equals("expense") ? "Expense" : "Income");
+        tvAmount.setText(amount + " VND");
+        tvCategory.setText(categoryName);
+        tvDate.setText(date);
+
+        // Nút hủy
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        // Nút xác nhận
+        btnConfirm.setOnClickListener(v -> {
+            dialog.dismiss();
+
+            // Gán dữ liệu vào form chính
+            amountInput.setText(amount);
+            notesInput.setText(etNote.getText().toString());
+            selectedType = type;
+            selectTransactionType(type);
+            loadCategoriesForType(type);
+            findAndSetCategory(categoryName);
+            parseAndSetDate(date);
+
+            // Lưu vào database
+            saveTransactionWithWallet();
+        });
+
+        dialog.show();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+    }
+
 }
