@@ -24,9 +24,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ChatbotService {
     private static final String TAG = "ChatbotService";
-    private static final String HUGGING_FACE_BASE_URL = "https://api-inference.huggingface.co/";
-    private static final String API_TOKEN = "hf_xxxYourHuggingFaceTokenxxx";
-    private HuggingFaceApiService apiService;
+    // OpenRouter configuration
+    private static final String OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/";
+    private static final String API_TOKEN = "sk-or-v1";
+    private static final String MODEL = "deepseek/deepseek-chat-v3.1:free";
+    
+    private OpenRouterApiService apiService;
     private AppDatabase database;
     private Context context;
 
@@ -35,11 +38,11 @@ public class ChatbotService {
         this.database = AppDatabase.getInstance(context);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(HUGGING_FACE_BASE_URL)
+                .baseUrl(OPENROUTER_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        this.apiService = retrofit.create(HuggingFaceApiService.class);
+        this.apiService = retrofit.create(OpenRouterApiService.class);
     }
 
     public void generateFinancialAdvice(int userId, int walletId, String userMessage, ChatbotCallback callback) {
@@ -49,43 +52,60 @@ public class ChatbotService {
         new Thread(() -> {
             try {
                 String financialAnalysis = analyzeUserFinancialData(userId, walletId);
-                String prompt = createFinancialPrompt(userMessage, financialAnalysis);
                 
-                Log.d(TAG, "Generated prompt: " + prompt);
+                Log.d(TAG, "Financial analysis: " + financialAnalysis);
 
-                HuggingFaceRequest request = new HuggingFaceRequest(prompt);
-                request.getParameters().setMax_new_tokens(200);
-                request.getParameters().setTemperature(0.7);
-                request.getParameters().setReturn_full_text(false);
+                // Create OpenRouter request with chat format
+                OpenRouterRequest request = new OpenRouterRequest(MODEL);
+                request.setTemperature(0.7);
+                request.setMax_tokens(500);
+                
+                // System message to set context
+                request.addMessage("system", 
+                    "Bạn là trợ lý tài chính cá nhân chuyên nghiệp. " +
+                    "Hãy đưa ra lời khuyên ngắn gọn, thực tế và hữu ích bằng tiếng Việt. " +
+                    "Trả lời trong 3-4 câu, tập trung vào hành động cụ thể.");
+                
+                // User message with financial data
+                String userPrompt = "Dữ liệu tài chính:\n" + financialAnalysis + "\n\nCâu hỏi: " + userMessage;
+                request.addMessage("user", userPrompt);
 
-                Call<HuggingFaceResponse> call = apiService.generateResponse(
+                Call<OpenRouterResponse> call = apiService.generateResponse(
                     "Bearer " + API_TOKEN,
+                    "https://github.com/notnbhd/mymoney", // Your app URL
+                    "MyMoney App", // Your app name
                     request
                 );
 
-                call.enqueue(new Callback<HuggingFaceResponse>() {
+                call.enqueue(new Callback<OpenRouterResponse>() {
                     @Override
-                    public void onResponse(Call<HuggingFaceResponse> call, Response<HuggingFaceResponse> response) {
+                    public void onResponse(Call<OpenRouterResponse> call, Response<OpenRouterResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             Log.d(TAG, "API Response successful");
-                            String generatedText = extractResponseText(response.body());
+                            String generatedText = response.body().getGeneratedText();
                             
                             if (generatedText != null && !generatedText.isEmpty()) {
                                 String cleanedResponse = cleanGeneratedText(generatedText);
-                                String enhancedResponse = enhanceWithLocalAnalysis(cleanedResponse, financialAnalysis);
-                                callback.onSuccess(enhancedResponse);
+                                callback.onSuccess(cleanedResponse);
                             } else {
                                 Log.w(TAG, "Empty response from API, using local advice");
                                 callback.onSuccess(generateLocalFinancialAdvice(userId, walletId, userMessage, financialAnalysis));
                             }
                         } else {
                             Log.e(TAG, "API Error: " + response.code() + " - " + response.message());
+                            // Try to read error body
+                            try {
+                                String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                                Log.e(TAG, "Error body: " + errorBody);
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error reading error body", e);
+                            }
                             callback.onSuccess(generateLocalFinancialAdvice(userId, walletId, userMessage, financialAnalysis));
                         }
                     }
 
                     @Override
-                    public void onFailure(Call<HuggingFaceResponse> call, Throwable t) {
+                    public void onFailure(Call<OpenRouterResponse> call, Throwable t) {
                         Log.e(TAG, "API Failure: " + t.getMessage(), t);
                         callback.onSuccess(generateLocalFinancialAdvice(userId, walletId, userMessage, financialAnalysis));
                     }
@@ -155,44 +175,11 @@ public class ChatbotService {
         return analysis.toString();
     }
 
-    private String createFinancialPrompt(String userMessage, String financialAnalysis) {
-        return "[INST] Bạn là trợ lý tài chính cá nhân. Dựa vào dữ liệu tài chính dưới đây, hãy đưa ra lời khuyên ngắn gọn, thực tế và hữu ích (tối đa 3-4 câu).\n\n" +
-               "Dữ liệu tài chính:\n" + financialAnalysis + "\n\n" +
-               "Câu hỏi: " + userMessage + "\n\n" +
-               "Lời khuyên (ngắn gọn, thực tế): [/INST]";
-    }
-
-    private String extractResponseText(HuggingFaceResponse response) {
-        if (response != null && !response.isEmpty()) {
-            return response.getGeneratedText();
-        }
-        return null;
-    }
-
     private String cleanGeneratedText(String generatedText) {
         if (generatedText == null) return "";
         
-        // Remove instruction markers
-        generatedText = generatedText.replaceAll("\\[INST\\].*?\\[/INST\\]", "").trim();
-        
-        // Remove prompt repetition
-        if (generatedText.contains("Lời khuyên")) {
-            int index = generatedText.lastIndexOf("Lời khuyên");
-            if (index != -1) {
-                generatedText = generatedText.substring(index);
-                generatedText = generatedText.replaceFirst("Lời khuyên[^:]*:", "").trim();
-            }
-        }
-        
+        // OpenRouter/DeepSeek returns clean text, just trim
         return generatedText.trim();
-    }
-
-    private String enhanceWithLocalAnalysis(String aiResponse, String financialAnalysis) {
-        // If AI response is too short or generic, add financial summary
-        if (aiResponse.length() < 50) {
-            return financialAnalysis + "\n\n💡 " + aiResponse;
-        }
-        return aiResponse;
     }
 
     private String generateLocalFinancialAdvice(int userId, int walletId, String userMessage, String financialAnalysis) {
