@@ -14,6 +14,10 @@
     
     <!-- For Android 13+ (API 33+) -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    
+    <!-- Internet permission for AI Chatbot -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- Camera feature -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />

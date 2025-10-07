@@ -24,6 +24,8 @@ public class StatisticsFragment extends Fragment {
     private LinearLayout barChartContainer; // Monthly bar chart
     private TextView tvYear;
     private int selectedYear = Calendar.getInstance().get(Calendar.YEAR);
+    private int lastUserId = -1;
+    private int lastWalletId = -1;
 
     @Nullable
     @Override
@@ -41,6 +43,29 @@ public class StatisticsFragment extends Fragment {
 
         loadStatistics(); // tải dữ liệu năm hiện tại
         return view;
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        
+        // Check if user or wallet has changed
+        int currentUserId = MainActivity.getCurrentUserId();
+        int currentWalletId = MainActivity.getSelectedWalletId();
+        
+        if (currentUserId != lastUserId || currentWalletId != lastWalletId) {
+            lastUserId = currentUserId;
+            lastWalletId = currentWalletId;
+            refreshData();
+        }
+    }
+    
+    /**
+     * Public method to refresh statistics data
+     * Called when wallet is changed or user logs in/out
+     */
+    public void refreshData() {
+        loadStatistics();
     }
 
     /** Hiển thị hộp chọn năm **/
@@ -74,10 +99,14 @@ public class StatisticsFragment extends Fragment {
             calendar.set(selectedYear, Calendar.DECEMBER, 31, 23, 59, 59);
             endOfYear = calendar.getTimeInMillis();
 
+            int userId = MainActivity.getCurrentUserId();
+            int walletId = MainActivity.getSelectedWalletId(); // 🔹 Get current wallet
+            
+            // 🔹 Pass both userId and walletId for wallet-specific statistics
             List<CategoryTotal> topExpenses =
-                    db.transactionDao().getTopExpensesByYear(startOfYear, endOfYear);
+                    db.transactionDao().getTopExpensesByYear(userId, walletId, startOfYear, endOfYear);
             List<MonthTotal> monthlyTotals =
-                    db.transactionDao().getMonthlyExpensesByYear(startOfYear, endOfYear);
+                    db.transactionDao().getMonthlyExpensesByYear(userId, walletId, startOfYear, endOfYear);
 
             requireActivity().runOnUiThread(() -> {
                 displayTopExpenses(topExpenses);

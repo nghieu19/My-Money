@@ -399,6 +399,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (currentFragment instanceof HistoryFragment) {
             android.util.Log.d("MainActivity", "Calling HistoryFragment.refreshData()");
             ((HistoryFragment) currentFragment).refreshData();
+        } else if (currentFragment instanceof StatisticsFragment) {
+            android.util.Log.d("MainActivity", "Calling StatisticsFragment.refreshData()");
+            ((StatisticsFragment) currentFragment).refreshData();
         } else {
             // For other fragments, use detach/attach
             android.util.Log.d("MainActivity", "Using detach/attach for fragment refresh");

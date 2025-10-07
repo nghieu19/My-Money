@@ -45,8 +45,17 @@ public interface TransactionDao {
     @Query("SELECT * FROM `transaction` WHERE created_at BETWEEN :startDate AND :endDate ORDER BY created_at DESC")
     List<Transaction> getTransactionsByDateRange(long startDate, long endDate);
     
+    @Query("SELECT * FROM `transaction` WHERE user_id = :userId AND created_at BETWEEN :startDate AND :endDate ORDER BY created_at DESC")
+    List<Transaction> getTransactionsByDateRange(int userId, long startDate, long endDate);
+    
     @Query("SELECT * FROM `transaction` WHERE wallet_id = :walletId AND created_at BETWEEN :startDate AND :endDate ORDER BY created_at DESC")
     List<Transaction> getTransactionsByWalletAndDateRange(int walletId, long startDate, long endDate);
+    
+    @Query("SELECT SUM(amount) FROM `transaction` WHERE user_id = :userId AND type = 'expense' AND created_at BETWEEN :startDate AND :endDate")
+    Double getTotalExpensesByDateRange(int userId, long startDate, long endDate);
+    
+    @Query("SELECT SUM(amount) FROM `transaction` WHERE user_id = :userId AND type = 'income' AND created_at BETWEEN :startDate AND :endDate")
+    Double getTotalIncomeByDateRange(int userId, long startDate, long endDate);
     
     @Query("SELECT SUM(amount) FROM `transaction` WHERE wallet_id = :walletId AND type = 'expense'")
     double getTotalExpensesByWallet(int walletId);
@@ -73,30 +82,31 @@ public interface TransactionDao {
     List<Transaction> getRecentTransactions(int limit);
 
 
-    // 🟢 Thêm phương thức thống kê top chi tiêu
+    // 🟢 Thêm phương thức thống kê top chi tiêu (wallet + user specific)
     @Query("SELECT c.name AS category, SUM(t.amount) AS total " +
             "FROM `transaction` t " +
             "JOIN category c ON t.category_id = c.id " +
-            "WHERE t.type = 'expense' AND t.created_at BETWEEN :startDate AND :endDate " +
+            "WHERE t.type = 'expense' AND t.user_id = :userId AND t.wallet_id = :walletId AND t.created_at BETWEEN :startDate AND :endDate " +
             "GROUP BY c.name " +
             "ORDER BY total DESC " +
             "LIMIT 5")
-    List<CategoryTotal> getTopExpensesByYear(long startDate, long endDate);
+    List<CategoryTotal> getTopExpensesByYear(int userId, int walletId, long startDate, long endDate);
 
     @Query("SELECT strftime('%m', datetime(created_at / 1000, 'unixepoch')) AS month, " +
             "SUM(amount) AS total " +
             "FROM `transaction` " +
-            "WHERE type = 'expense' AND created_at BETWEEN :startDate AND :endDate " +
+            "WHERE type = 'expense' AND user_id = :userId AND wallet_id = :walletId AND created_at BETWEEN :startDate AND :endDate " +
             "GROUP BY month " +
             "ORDER BY month")
-    List<MonthTotal> getMonthlyExpensesByYear(long startDate, long endDate);
+    List<MonthTotal> getMonthlyExpensesByYear(int userId, int walletId, long startDate, long endDate);
+    
     @Query("SELECT c.name AS category, SUM(t.amount) AS total " +
             "FROM `transaction` t " +
             "JOIN category c ON t.category_id = c.id " +
-            "WHERE t.type = 'expense' AND t.created_at BETWEEN :startDate AND :endDate " +
+            "WHERE t.type = 'expense' AND t.user_id = :userId AND t.wallet_id = :walletId AND t.created_at BETWEEN :startDate AND :endDate " +
             "GROUP BY c.name " +
             "ORDER BY total DESC")
-    List<CategoryTotal> getExpensesByDateRange(long startDate, long endDate);
+    List<CategoryTotal> getExpensesByDateRange(int userId, int walletId, long startDate, long endDate);
 
 
 }
