@@ -231,20 +231,4 @@ public class AddWalletFragment extends Fragment {
             }).start();
         }
     }
-
-    /**
-     * Returns the user-friendly name of the wallet type
-     */
-    private String getWalletTypeName() {
-        switch (walletType) {
-            case NewWalletFragment.WALLET_TYPE_CASH:
-                return "Cash";
-            case NewWalletFragment.WALLET_TYPE_BANK:
-                return "Bank Account";
-            case NewWalletFragment.WALLET_TYPE_VIRTUAL:
-                return "Virtual Account";
-            default:
-                return "Unknown";
-        }
-    }
 }

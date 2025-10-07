@@ -43,6 +43,9 @@ dependencies {
     // ML Kit Text Recognition for OCR
     implementation("com.google.mlkit:text-recognition:16.0.0")
     
+    // OpenCV for image preprocessing
+    implementation("org.opencv:opencv:4.12.0")
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

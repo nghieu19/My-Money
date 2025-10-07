@@ -27,6 +27,7 @@
     <color name="chart_purple">#9932CC</color>
     <color name="chart_yellow">#FFD700</color>
     <color name="chart_teal">#20B2AA</color>
+    <color name="light_pink">#FFB6C1</color>
     
     <!-- UI element colors -->
     <color name="item_background">#30d9d9d9</color>
