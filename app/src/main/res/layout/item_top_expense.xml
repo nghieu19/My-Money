@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -7,6 +8,16 @@
     android:background="@drawable/transaction_item_background"
     android:layout_marginBottom="8dp">
 
+    <!-- 🖼 Icon danh mục -->
+    <ImageView
+        android:id="@+id/imgCategoryIcon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/pie_chart_description"
+        android:src="@drawable/ic_other" />
+
+    <!-- 📋 Tên danh mục -->
     <TextView
         android:id="@+id/tvCategory"
         android:layout_width="0dp"
@@ -16,6 +27,7 @@
         android:textColor="@color/text_primary"
         android:textSize="14sp" />
 
+    <!-- 📊 Phần trăm -->
     <TextView
         android:id="@+id/tvPercent"
         android:layout_width="wrap_content"
@@ -25,6 +37,7 @@
         android:textColor="@color/text_secondary"
         android:textSize="14sp" />
 
+    <!-- 💰 Số tiền -->
     <TextView
         android:id="@+id/tvAmount"
         android:layout_width="wrap_content"

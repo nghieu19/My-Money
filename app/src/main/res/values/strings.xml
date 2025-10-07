@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">MyMoney</string>
     <string name="total_balance">Total balance</string>
     <string name="expenses">Expenses</string>
@@ -115,4 +115,7 @@
     
     <!-- Transaction -->
     <string name="transaction_icon">Transaction icon</string>
+    <string name="select_date_range">Chọn khoảng thời gian</string>
+    <string name="select_year" tools:ignore="DuplicateDefinition">Chọn năm</string>
+
 </resources>
