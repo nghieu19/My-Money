@@ -6,6 +6,8 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import com.example.mymoney.CategoryTotal;
+import com.example.mymoney.MonthTotal;
 import com.example.mymoney.database.entity.Transaction;
 
 import java.util.List;
@@ -69,4 +71,32 @@ public interface TransactionDao {
     
     @Query("SELECT * FROM `transaction` ORDER BY created_at DESC LIMIT :limit")
     List<Transaction> getRecentTransactions(int limit);
+
+
+    // 🟢 Thêm phương thức thống kê top chi tiêu
+    @Query("SELECT c.name AS category, SUM(t.amount) AS total " +
+            "FROM `transaction` t " +
+            "JOIN category c ON t.category_id = c.id " +
+            "WHERE t.type = 'expense' AND t.created_at BETWEEN :startDate AND :endDate " +
+            "GROUP BY c.name " +
+            "ORDER BY total DESC " +
+            "LIMIT 5")
+    List<CategoryTotal> getTopExpensesByYear(long startDate, long endDate);
+
+    @Query("SELECT strftime('%m', datetime(created_at / 1000, 'unixepoch')) AS month, " +
+            "SUM(amount) AS total " +
+            "FROM `transaction` " +
+            "WHERE type = 'expense' AND created_at BETWEEN :startDate AND :endDate " +
+            "GROUP BY month " +
+            "ORDER BY month")
+    List<MonthTotal> getMonthlyExpensesByYear(long startDate, long endDate);
+    @Query("SELECT c.name AS category, SUM(t.amount) AS total " +
+            "FROM `transaction` t " +
+            "JOIN category c ON t.category_id = c.id " +
+            "WHERE t.type = 'expense' AND t.created_at BETWEEN :startDate AND :endDate " +
+            "GROUP BY c.name " +
+            "ORDER BY total DESC")
+    List<CategoryTotal> getExpensesByDateRange(long startDate, long endDate);
+
+
 }
