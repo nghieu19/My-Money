@@ -3,6 +3,7 @@ package com.example.mymoney.chatbot;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.mymoney.BuildConfig;
 import com.example.mymoney.database.AppDatabase;
 import com.example.mymoney.database.entity.Category;
 import com.example.mymoney.database.entity.SavingGoal;
@@ -26,7 +27,7 @@ public class ChatbotService {
     private static final String TAG = "ChatbotService";
     // OpenRouter configuration
     private static final String OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/";
-    private static final String API_TOKEN = "sk-or-v1";
+    private static final String API_TOKEN = BuildConfig.OPENROUTER_API_TOKEN;
     private static final String MODEL = "deepseek/deepseek-chat-v3.1:free";
     
     private OpenRouterApiService apiService;

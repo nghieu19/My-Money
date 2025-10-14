@@ -17,13 +17,6 @@ import androidx.fragment.app.Fragment;
 import com.example.mymoney.database.AppDatabase;
 import com.example.mymoney.database.entity.Wallet;
 
-import java.util.Objects;
-
-/**
- * AddWalletFragment - Shows the wallet information input form
- * This is the second step in the wallet creation pipeline
- * Users fill in wallet details like name, balance, currency, and notes
- */
 public class AddWalletFragment extends Fragment {
 
     private static final String ARG_WALLET_TYPE = "wallet_type";
@@ -81,7 +74,6 @@ public class AddWalletFragment extends Fragment {
     public void onResume() {
         super.onResume();
         
-        // Hide main header and footer when this fragment becomes visible
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).hideMainHeaderAndFooter();
         }
@@ -90,11 +82,8 @@ public class AddWalletFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        
-        // Only show header/footer if we're leaving the wallet creation flow entirely
-        // Check if the next fragment is NOT a wallet creation fragment
+
         if (getActivity() != null && isRemoving()) {
-            // Fragment is being removed (back button pressed to leave wallet creation)
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).showMainHeaderAndFooter();
             }
@@ -118,27 +107,18 @@ public class AddWalletFragment extends Fragment {
     }
 
     private void setupListeners() {
-        // Back button listener - return to previous fragment
         btnBack.setOnClickListener(v -> {
             if (getActivity() != null) {
                 getActivity().getSupportFragmentManager().popBackStack();
             }
         });
 
-        // Save button listener
         btnSave.setOnClickListener(v -> saveWallet());
 
-        // Currency selection listener
         layoutCurrency.setOnClickListener(v -> showCurrencyPicker());
     }
 
-    /**
-     * Shows a currency picker dialog
-     * In a real implementation, this would show a dialog with currency options
-     */
     private void showCurrencyPicker() {
-        // TODO: Implement currency picker dialog
-        // For now, just cycle through some common currencies
         String[] currencies = {"VND", "USD", "EUR", "GBP", "JPY"};
         int currentIndex = -1;
         
@@ -154,22 +134,17 @@ public class AddWalletFragment extends Fragment {
         tvCurrency.setText(selectedCurrency);
     }
 
-    /**
-     * Validates and saves the wallet information
-     */
     private void saveWallet() {
         String walletName = etWalletName.getText().toString().trim();
         String balanceStr = etBalance.getText().toString().trim();
         String note = etNote.getText().toString().trim();
 
-        // Validate wallet name
         if (walletName.isEmpty()) {
             Toast.makeText(getContext(), "Please enter wallet name", Toast.LENGTH_SHORT).show();
             etWalletName.requestFocus();
             return;
         }
 
-        // Validate balance
         if (balanceStr.isEmpty()) {
             Toast.makeText(getContext(), "Please enter balance", Toast.LENGTH_SHORT).show();
             etBalance.requestFocus();
@@ -198,7 +173,7 @@ public class AddWalletFragment extends Fragment {
             wallet.setBalance(balance);
             wallet.setDescription(note);
             wallet.setActive(true);
-            wallet.setUserId(MainActivity.getCurrentUserId()); // Use current logged-in user
+            wallet.setUserId(MainActivity.getCurrentUserId());
             
             // Insert wallet in background thread
             AppDatabase db = AppDatabase.getInstance(getContext());
@@ -211,7 +186,6 @@ public class AddWalletFragment extends Fragment {
                         getActivity().runOnUiThread(() -> {
                             Toast.makeText(getContext(), "Wallet saved successfully!", Toast.LENGTH_SHORT).show();
                             
-                            // Navigate back to home - clear back stack and return to HomeFragment
                             if (getActivity() != null) {
                                 getActivity().getSupportFragmentManager().popBackStack(null, 
                                     androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -219,7 +193,6 @@ public class AddWalletFragment extends Fragment {
                         });
                     }
                 } catch (Exception e) {
-                    // Handle error on UI thread
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
                             Toast.makeText(getContext(), "Error saving wallet: " + e.getMessage(), 

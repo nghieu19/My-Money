@@ -21,6 +21,9 @@ public class Category {
     
     @ColumnInfo(name = "type")
     private String type; // "expense" or "income"
+    
+    @ColumnInfo(name = "icon")
+    private String icon; // e.g., "ic_food", "ic_transport", "ic_salary"
 
 
     // Constructors
@@ -58,5 +61,13 @@ public class Category {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }

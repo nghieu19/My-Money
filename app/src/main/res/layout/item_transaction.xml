@@ -35,7 +35,7 @@
             android:id="@+id/transaction_details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Notes\n1:00 03/09/2025"
+            android:text="1:00"
             android:textSize="8sp"
             android:textColor="@color/transaction_subtitle"
             android:lineSpacingExtra="-2dp" />

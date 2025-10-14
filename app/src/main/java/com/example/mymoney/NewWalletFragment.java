@@ -13,10 +13,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-/**
- * NewWalletFragment - Shows the wallet type selection screen
- * This is the first step in the wallet creation pipeline
- */
 public class NewWalletFragment extends Fragment {
 
     private ImageView btnBack;
@@ -47,7 +43,6 @@ public class NewWalletFragment extends Fragment {
     public void onResume() {
         super.onResume();
         
-        // Hide main header and footer when this fragment becomes visible
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).hideMainHeaderAndFooter();
         }
@@ -56,11 +51,8 @@ public class NewWalletFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        
-        // Only show header/footer if we're leaving the wallet creation flow entirely
-        // Check if the next fragment is NOT a wallet creation fragment
+
         if (getActivity() != null && isRemoving()) {
-            // Fragment is being removed (back button pressed to leave wallet creation)
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).showMainHeaderAndFooter();
             }
@@ -82,13 +74,10 @@ public class NewWalletFragment extends Fragment {
             }
         });
 
-        // Cash option listener
         optionCash.setOnClickListener(v -> openAddWalletFragment(WALLET_TYPE_CASH));
 
-        // Bank account option listener
         optionBankAccount.setOnClickListener(v -> openAddWalletFragment(WALLET_TYPE_BANK));
 
-        // Virtual account option listener
         optionVirtualAccount.setOnClickListener(v -> openAddWalletFragment(WALLET_TYPE_VIRTUAL));
     }
 

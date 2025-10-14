@@ -2,8 +2,17 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.Mymoney" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <item name="colorPrimary">@color/light_pink</item>
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/primary_pink</item>
+        <item name="colorPrimaryVariant">@color/light_pink</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/soft_pink</item>
+        <item name="colorOnSecondary">@color/text_primary</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="android:statusBarColor">@color/light_pink</item>
+        <item name="android:navigationBarColor">@color/soft_pink</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.Mymoney" parent="Base.Theme.Mymoney" />

@@ -95,13 +95,9 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             }).start();
             
             // Format date and description
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd/MM/yyyy", Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
             String dateStr = sdf.format(new Date(transaction.getCreatedAt()));
-            String description = transaction.getDescription();
-            if (description == null || description.isEmpty()) {
-                description = "No notes";
-            }
-            transactionDetails.setText(description + "\n" + dateStr);
+            transactionDetails.setText(dateStr);
             
             // Format amount
             String amountStr;
@@ -111,7 +107,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
                 textColor = itemView.getContext().getColor(R.color.expense_red);
             } else {
                 amountStr = String.format(Locale.getDefault(), "+%,.0f VND", transaction.getAmount());
-                textColor = itemView.getContext().getColor(R.color.income_green);
+                textColor = itemView.getContext().getColor(R.color.primary_green);
             }
             transactionAmount.setText(amountStr);
             transactionAmount.setTextColor(textColor);

@@ -3,38 +3,50 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     
-    <!-- Main theme colors -->
-    <color name="background">#f8f9fa</color>
-    <color name="text_primary">#212529</color>
-    <color name="text_secondary">#6c757d</color>
+    <!-- Main theme colors - Light Pink & White -->
+    <color name="background">#FFF5F7</color>
+    <color name="text_primary">#4A2C2A</color>
+    <color name="text_secondary">#8B7E7D</color>
     
-    <!-- App specific colors -->
-    <color name="primary_green">#0c7c65</color>
-    <color name="mint_green">#A8E6CF</color>
-    <color name="light_mint_green">#B5EDD8</color>
-    <color name="red_expense">#c50000</color>
-    <color name="expense_red">#c50000</color>
-    <color name="green_income">#00ce0e</color>
-    <color name="income_green">#00ce0e</color>
-    <color name="gray_text">#666666</color>
-    <color name="light_gray">#f5f5f5</color>
+    <!-- App specific colors - Pink theme -->
+    <color name="primary_color">#FFB6C1</color>
+    <color name="primary_pink">#FFB6C1</color>
+    <color name="light_pink">#FFE4E9</color>
+    <color name="soft_pink">#FFF0F3</color>
+    <color name="red_expense">#FF6B9D</color>
+    <color name="expense_red">#FF6B9D</color>
+    <color name="green_income">#98D8C8</color>
+    <color name="income_green">#98D8C8</color>
+    <color name="gray_text">#B8A9A8</color>
+    <color name="light_gray">#FFF5F7</color>
     
-    <!-- Chart colors -->
-    <color name="chart_red">#ff4444</color>
-    <color name="chart_green">#44ff44</color>
-    <color name="chart_blue">#2A74D4</color>
-    <color name="chart_orange">#FF8C00</color>
-    <color name="chart_purple">#9932CC</color>
-    <color name="chart_yellow">#FFD700</color>
-    <color name="chart_teal">#20B2AA</color>
-    <color name="light_pink">#FFB6C1</color>
+    <!-- Chart colors - Pink palette -->
+    <color name="chart_red">#FF6B9D</color>
+    <color name="chart_green">#98D8C8</color>
+    <color name="chart_blue">#A8C5E8</color>
+    <color name="chart_orange">#FFB88C</color>
+    <color name="chart_purple">#D8B5E8</color>
+    <color name="chart_yellow">#FFE699</color>
+    <color name="chart_teal">#89CFF0</color>
+    <color name="chart_pink">#FFB6C1</color>
+    <color name="mint_green">#98D8C8</color>
+    <color name="hard_pink">#FF6B9D</color>
     
-    <!-- UI element colors -->
-    <color name="item_background">#30d9d9d9</color>
+    <!-- UI element colors - Pink theme -->
+    <color name="item_background">#30FFB6C1</color>
     <color name="search_hint">#76000000</color>
-    <color name="transaction_subtitle">#80000000</color>
-    <color name="search_border">#2b000000</color>
-    <color name="dropdown_border">#1c000000</color>
-    <color name="dropdown_text">#60000000</color>
-    <color name="bar_chart_blue">#662A74D4</color>
+    <color name="transaction_subtitle">#804A2C2A</color>
+    <color name="search_border">#40FFB6C1</color>
+    <color name="dropdown_border">#30FFB6C1</color>
+    <color name="dropdown_text">#604A2C2A</color>
+    <color name="bar_chart_blue">#66A8C5E8</color>
+    <color name="red">#FF6B9D</color>
+    <color name="blue">#A8C5E8</color>
+    <color name="green">#98D8C8</color>
+    <color name='primary_green'>#CE099972</color>
+    
+    <!-- Additional theme colors -->
+    <color name="card_background">#FFFFFFFF</color>
+    <color name="card_shadow">#20FFB6C1</color>
+    <color name="divider">#E8D5D4</color>
 </resources>

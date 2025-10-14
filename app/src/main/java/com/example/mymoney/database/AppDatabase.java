@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
                 Budget.class,
                 SavingGoal.class
         },
-        version = 5,
+        version = 9,
         exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -140,28 +140,43 @@ public abstract class AppDatabase extends RoomDatabase {
         
         db.walletDao().insert(defaultWallet);
 
-        // Create expense categories (wallet-independent)
-        String[] expenseCategoryNames = {"Food", "Home", "Transport", "Relationship", "Entertainment"};
-        for (String categoryName : expenseCategoryNames) {
+        // Create expense categories with icons
+        String[][] expenseCategories = {
+            {"Food", "ic_food"},
+            {"Home", "ic_home"},
+            {"Transport", "ic_transport"},
+            {"Relationship", "ic_love"},
+            {"Entertainment", "ic_entertainment"}
+        };
+        
+        for (String[] categoryData : expenseCategories) {
             Category category = new Category();
-            category.setName(categoryName);
-            category.setDescription("Default " + categoryName + " category");
+            category.setName(categoryData[0]);
+            category.setDescription("Default " + categoryData[0] + " category");
             category.setType("expense");
+            category.setIcon(categoryData[1]);
 
             long categoryId = db.categoryDao().insert(category);
-            android.util.Log.d("AppDatabase", "Default expense category created: " + categoryName + " with ID: " + categoryId);
+            android.util.Log.d("AppDatabase", "Default expense category created: " + categoryData[0] + " with ID: " + categoryId);
         }
         
-        // Create income categories (wallet-independent)
-        String[] incomeCategoryNames = {"Salary", "Business", "Gifts", "Others"};
-        for (String categoryName : incomeCategoryNames) {
+        // Create income categories with icons
+        String[][] incomeCategories = {
+            {"Salary", "ic_salary"},
+            {"Business", "ic_work"},
+            {"Gifts", "ic_gift"},
+            {"Others", "ic_more_apps"}
+        };
+        
+        for (String[] categoryData : incomeCategories) {
             Category category = new Category();
-            category.setName(categoryName);
-            category.setDescription("Default " + categoryName + " category");
+            category.setName(categoryData[0]);
+            category.setDescription("Default " + categoryData[0] + " category");
             category.setType("income");
+            category.setIcon(categoryData[1]);
 
             long categoryId = db.categoryDao().insert(category);
-            android.util.Log.d("AppDatabase", "Default income category created: " + categoryName + " with ID: " + categoryId);
+            android.util.Log.d("AppDatabase", "Default income category created: " + categoryData[0] + " with ID: " + categoryId);
         }
     }
     
@@ -187,28 +202,43 @@ public abstract class AppDatabase extends RoomDatabase {
                 db.walletDao().insert(defaultWallet);
             }
             
-            // Create expense categories (wallet-independent)
-            String[] expenseCategoryNames = {"Food", "Home", "Transport", "Relationship", "Entertainment"};
-            for (String categoryName : expenseCategoryNames) {
+            // Create expense categories with icons
+            String[][] expenseCategories = {
+                {"Food", "ic_food"},
+                {"Home", "ic_home"},
+                {"Transport", "ic_transport"},
+                {"Relationship", "ic_love"},
+                {"Entertainment", "ic_entertainment"}
+            };
+            
+            for (String[] categoryData : expenseCategories) {
                 Category category = new Category();
-                category.setName(categoryName);
-                category.setDescription("Default " + categoryName + " category");
+                category.setName(categoryData[0]);
+                category.setDescription("Default " + categoryData[0] + " category");
                 category.setType("expense");
+                category.setIcon(categoryData[1]);
 
                 long categoryId = db.categoryDao().insert(category);
-                android.util.Log.d("AppDatabase", "Default expense category ensured: " + categoryName + " with ID: " + categoryId);
+                android.util.Log.d("AppDatabase", "Default expense category ensured: " + categoryData[0] + " with ID: " + categoryId);
             }
             
-            // Create income categories (wallet-independent)
-            String[] incomeCategoryNames = {"Salary", "Business", "Gifts", "Others"};
-            for (String categoryName : incomeCategoryNames) {
+            // Create income categories with icons
+            String[][] incomeCategories = {
+                {"Salary", "ic_salary"},
+                {"Business", "ic_work"},
+                {"Gifts", "ic_gift"},
+                {"Others", "ic_more_apps"}
+            };
+            
+            for (String[] categoryData : incomeCategories) {
                 Category category = new Category();
-                category.setName(categoryName);
-                category.setDescription("Default " + categoryName + " category");
+                category.setName(categoryData[0]);
+                category.setDescription("Default " + categoryData[0] + " category");
                 category.setType("income");
+                category.setIcon(categoryData[1]);
 
                 long categoryId = db.categoryDao().insert(category);
-                android.util.Log.d("AppDatabase", "Default income category ensured: " + categoryName + " with ID: " + categoryId);
+                android.util.Log.d("AppDatabase", "Default income category ensured: " + categoryData[0] + " with ID: " + categoryId);
             }
         }
     }

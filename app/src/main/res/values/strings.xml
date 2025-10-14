@@ -115,4 +115,5 @@
     
     <!-- Transaction -->
     <string name="transaction_icon">Transaction icon</string>
+    <string name="add_transaction">Add transaction</string>
 </resources>

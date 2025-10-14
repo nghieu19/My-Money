@@ -31,8 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_USERNAME = "username";
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
     
-    private static int selectedWalletId = -1; // Currently selected wallet ID (-1 means no wallet selected)
-    private static int currentUserId = 1; // Current logged-in user ID (default to 1)
+    private static int selectedWalletId = -1; //-1 la chua chon vi nao
+    private static int currentUserId = 1; // acc default la 1
 
     private FragmentManager fragmentManager;
     private TextView headerTitle;
@@ -92,16 +92,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Update current user ID from preferences
         updateCurrentUserId();
-        // Update button visibility based on login state
         updateSettingsButtonsVisibility();
-        // Reload wallets when activity resumes (e.g., after adding a new wallet or logging in)
-        // This will auto-select a wallet and trigger refresh if needed
         loadWalletsFromDatabase();
         
-        // Additional refresh with longer delay to ensure wallet loading completes
-        // This catches cases where loadWalletsFromDatabase doesn't trigger refresh
+
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             android.util.Log.d("MainActivity", "Final safety refresh from onResume()");
             refreshCurrentFragment();
@@ -129,6 +124,12 @@ public class MainActivity extends AppCompatActivity {
             hideWalletPanel();
             // Don't update title, and header/footer will be hidden by the fragment itself
             FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.setCustomAnimations(
+                R.anim.fade_in_up,
+                R.anim.fade_out_down,
+                R.anim.fade_in_up,
+                R.anim.fade_out_down
+            );
             transaction.replace(R.id.fragment_container, new NewWalletFragment());
             transaction.addToBackStack(null);
             transaction.commit();
@@ -205,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private int getLoggedInUserId() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        return prefs.getInt(KEY_USER_ID, 1); // Default to 1 if not logged in
+        return prefs.getInt(KEY_USER_ID, 1);
     }
 
     /**
@@ -288,7 +289,6 @@ public class MainActivity extends AppCompatActivity {
                     android.util.Log.d("MainActivity", "Auto-selected first wallet: ID " + newSelectedWalletId + " (" + wallets.get(0).getName() + ")");
                 }
             } else {
-                // No wallets available
                 android.util.Log.d("MainActivity", "No wallets available for user " + userId);
                 newSelectedWalletId = -1;
             }
@@ -297,20 +297,16 @@ public class MainActivity extends AppCompatActivity {
             final boolean walletChanged = (selectedWalletId != newSelectedWalletId);
             
             runOnUiThread(() -> {
-                // Clear existing wallet items
                 walletListContainer.removeAllViews();
                 
-                // Add wallet items dynamically
                 for (Wallet wallet : wallets) {
                     addWalletItemToPanel(wallet);
                 }
                 
-                // Update selected wallet ID
                 selectedWalletId = finalWalletId;
                 
                 android.util.Log.d("MainActivity", "Wallet items added to panel, selected wallet ID: " + selectedWalletId);
                 
-                // If wallet selection changed, refresh the fragment
                 if (walletChanged) {
                     android.util.Log.d("MainActivity", "Wallet selection changed, triggering fragment refresh");
                     new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
@@ -328,10 +324,8 @@ public class MainActivity extends AppCompatActivity {
         View walletItemView = getLayoutInflater()
             .inflate(R.layout.wallet_item, walletListContainer, false);
         
-        // Find the clickable inner LinearLayout (the one with background)
-        LinearLayout clickableArea = (LinearLayout) walletItemView.findViewById(R.id.wallet_clickable_area);
+        LinearLayout clickableArea = walletItemView.findViewById(R.id.wallet_clickable_area);
         if (clickableArea == null) {
-            // Fallback: try to find the first child LinearLayout
             if (walletItemView instanceof LinearLayout) {
                 LinearLayout parent = (LinearLayout) walletItemView;
                 if (parent.getChildCount() > 0 && parent.getChildAt(0) instanceof LinearLayout) {
@@ -449,13 +443,11 @@ public class MainActivity extends AppCompatActivity {
     private void setupNavigationBar() {
         LinearLayout navHome = findViewById(R.id.nav_home);
         LinearLayout navHistory = findViewById(R.id.nav_history);
-        LinearLayout navImport = findViewById(R.id.nav_import);
         LinearLayout navAIChat = findViewById(R.id.nav_ai_chat);
         LinearLayout navStatistics = findViewById(R.id.nav_statistics);
 
         navHome.setOnClickListener(v -> loadFragment(new HomeFragment(), "Home"));
         navHistory.setOnClickListener(v -> loadFragment(new HistoryFragment(), "History"));
-        navImport.setOnClickListener(v -> loadFragment(new ImportFragment(), "Import"));
         navAIChat.setOnClickListener(v -> loadFragment(new AIChatFragment(), "AI Chat"));
         navStatistics.setOnClickListener(v -> loadFragment(new StatisticsFragment(), "Statistics"));
     }
@@ -467,22 +459,13 @@ public class MainActivity extends AppCompatActivity {
         headerTitle.setText(title);
 
         FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(
+            R.anim.fade_in_up,
+            R.anim.fade_out_down,
+            R.anim.fade_in_up,
+            R.anim.fade_out_down
+        );
         transaction.replace(R.id.fragment_container, fragment);
-        transaction.commit();
-    }
-
-    /**
-     * Load a fragment with back stack support
-     * This allows the user to navigate back using the back button
-     */
-    private void loadFragmentWithBackStack(Fragment fragment, String title) {
-        // Show header and footer for normal fragments
-        showHeaderAndFooter();
-        headerTitle.setText(title);
-
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fragment_container, fragment);
-        transaction.addToBackStack(null);
         transaction.commit();
     }
 

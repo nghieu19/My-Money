@@ -10,10 +10,31 @@ android {
         applicationId = "com.example.mymoney"
         minSdk = 27
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Load .env file
+        val envFile = rootProject.file(".env")
+        if (envFile.exists()) {
+            //noinspection WrongGradleMethod
+            envFile.readLines().forEach { line ->
+                val parts = line.split("=", limit = 2)
+                if (parts.size == 2 && !line.startsWith("#")) {
+                    val key = parts[0].trim()
+                    val value = parts[1].trim()
+                    this@defaultConfig.buildConfigField("String", key, "\"$value\"")
+                }
+            }
+        } else {
+            // Default values if .env doesn't exist
+            buildConfigField("String", "OPENROUTER_API_TOKEN", "\"\"")
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
