@@ -14,6 +14,8 @@
 
     <!-- For Android 13+ (API 33+) -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
 
     <!-- Internet permission for AI Chatbot -->
     <uses-permission android:name="android.permission.INTERNET" />
