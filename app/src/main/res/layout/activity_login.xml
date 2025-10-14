@@ -77,18 +77,20 @@
         android:layout_marginEnd="16dp" />
 
     <!-- Nút đăng nhập -->
+
+
     <Button
         android:id="@+id/btnLogin"
-        android:layout_width="0dp"
+        android:layout_width="180dp"
         android:layout_height="50dp"
-        android:backgroundTint="@color/primary_green"
-        android:text="Login"
+        android:background="@drawable/btn_login_bg"
+        android:text="LOGIN"
         android:textColor="@android:color/white"
+        android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/txtForgot"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"
-        android:layout_marginHorizontal="60dp" />
+        android:layout_marginTop="28dp"/>
 
     <!-- Link Đăng ký -->
     <TextView
@@ -101,8 +103,8 @@
         android:text="Don't have an account? Register"
         android:textColor="@color/text_secondary"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnLogin" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="24dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

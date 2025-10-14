@@ -28,16 +28,27 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * StatisticsFragment
+ * ------------------
+ * Fragment này hiển thị các thống kê chi tiêu:
+ * - Biểu đồ tròn (PieChart): tỷ lệ chi tiêu theo danh mục
+ * - Biểu đồ cột (BarChart): tổng chi tiêu theo tháng
+ * - Danh sách top chi tiêu (với icon + % + số tiền)
+ */
 public class StatisticsFragment extends Fragment {
 
-    private LinearLayout expensesContainer;
-    private LinearLayout barChartContainer;
-    private TextView tvYear, tvDateRange;
-    private PieChart pieChart;
+    // 🔹 Khai báo các View trong giao diện
+    private LinearLayout expensesContainer;   // Hiển thị danh sách top expenses
+    private LinearLayout barChartContainer;   // Hiển thị biểu đồ cột
+    private TextView tvYear, tvDateRange;     // Hiển thị năm và khoảng thời gian
+    private PieChart pieChart;                // Biểu đồ tròn
 
+    // 🔹 Các biến lưu ngày tháng
     private long startDate, endDate;
     private int selectedYear = Calendar.getInstance().get(Calendar.YEAR);
 
+    // 🔹 Định dạng hiển thị ngày
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
     @Nullable
@@ -45,48 +56,59 @@ public class StatisticsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        // Nạp layout giao diện fragment_statistics.xml
         View view = inflater.inflate(R.layout.fragment_statistics, container, false);
 
+        // Ánh xạ các view từ XML
         expensesContainer = view.findViewById(R.id.expenses_container);
         barChartContainer = view.findViewById(R.id.bar_chart_container);
         tvYear = view.findViewById(R.id.tv_year);
         tvDateRange = view.findViewById(R.id.tv_date_range);
         pieChart = view.findViewById(R.id.pie_chart);
 
-        // Khởi tạo ngày mặc định: đầu và cuối tháng hiện tại
+        // 🔹 Đặt mặc định khoảng ngày: từ đầu tháng đến cuối tháng hiện tại
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.DAY_OF_MONTH, 1);
         startDate = cal.getTimeInMillis();
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
         endDate = cal.getTimeInMillis();
 
+        // Hiển thị ngày lên TextView
         tvDateRange.setText(dateFormat.format(startDate) + " - " + dateFormat.format(endDate));
+
+        // Khi nhấn vào chọn lại khoảng ngày
         tvDateRange.setOnClickListener(v -> showDateRangePicker());
 
+        // Hiển thị năm hiện tại
         tvYear.setText(String.valueOf(selectedYear));
         tvYear.setOnClickListener(v -> showYearPicker());
 
+        // Tải dữ liệu ban đầu
         loadStatistics();
         return view;
     }
 
-    /** Bộ chọn khoảng ngày **/
+    /**
+     * Hiển thị 2 hộp DatePicker để chọn khoảng ngày (từ - đến)
+     */
     private void showDateRangePicker() {
         final Calendar calendar = Calendar.getInstance();
 
+        // Hộp chọn ngày bắt đầu
         DatePickerDialog startPicker = new DatePickerDialog(requireContext(),
                 (view, year, month, dayOfMonth) -> {
                     Calendar startCal = Calendar.getInstance();
                     startCal.set(year, month, dayOfMonth, 0, 0, 0);
                     startDate = startCal.getTimeInMillis();
 
-                    // Mở DatePicker cho ngày kết thúc
+                    // Khi chọn xong -> mở hộp chọn ngày kết thúc
                     DatePickerDialog endPicker = new DatePickerDialog(requireContext(),
                             (view2, year2, month2, day2) -> {
                                 Calendar endCal = Calendar.getInstance();
                                 endCal.set(year2, month2, day2, 23, 59, 59);
                                 endDate = endCal.getTimeInMillis();
 
+                                // Cập nhật hiển thị
                                 tvDateRange.setText(dateFormat.format(startDate) + " - " + dateFormat.format(endDate));
                                 loadStatistics();
 
@@ -99,7 +121,9 @@ public class StatisticsFragment extends Fragment {
         startPicker.show();
     }
 
-    /** Bộ chọn năm **/
+    /**
+     * Hiển thị danh sách chọn năm (5 năm gần nhất)
+     */
     private void showYearPicker() {
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         List<String> years = new ArrayList<>();
@@ -117,17 +141,21 @@ public class StatisticsFragment extends Fragment {
                 .show();
     }
 
-    /** Tải thống kê **/
+    /**
+     * Lấy dữ liệu từ Room Database theo:
+     * - Khoảng ngày (để hiển thị PieChart)
+     * - Năm (để hiển thị BarChart)
+     */
     private void loadStatistics() {
         new Thread(() -> {
             AppDatabase db = AppDatabase.getInstance(getContext());
             if (db == null || db.transactionDao() == null) return;
 
-            // Lấy dữ liệu theo khoảng ngày (PieChart)
+            // Dữ liệu cho PieChart
             List<CategoryTotal> categoryTotals = db.transactionDao()
                     .getExpensesByDateRange(startDate, endDate);
 
-            // Lấy dữ liệu theo năm (BarChart)
+            // Dữ liệu cho BarChart
             Calendar calendar = Calendar.getInstance();
             calendar.set(selectedYear, Calendar.JANUARY, 1, 0, 0, 0);
             long startOfYear = calendar.getTimeInMillis();
@@ -137,6 +165,7 @@ public class StatisticsFragment extends Fragment {
             List<MonthTotal> monthlyTotals =
                     db.transactionDao().getMonthlyExpensesByYear(startOfYear, endOfYear);
 
+            // Cập nhật giao diện trên main thread
             requireActivity().runOnUiThread(() -> {
                 displayPieChart(categoryTotals);
                 displayTopExpenses(categoryTotals);
@@ -145,10 +174,12 @@ public class StatisticsFragment extends Fragment {
         }).start();
     }
 
-    /** Hiển thị biểu đồ tròn **/
-    /** Hiển thị biểu đồ tròn (full hình, không chữ giữa, legend giữa) **/
-    /** Hiển thị biểu đồ tròn full hình, legend giữa có khoảng cách **/
-    /** Hiển thị biểu đồ tròn bên trái + chú thích bên phải **/
+    /**
+     * Biểu đồ tròn (PieChart):
+     * - Hiển thị tỷ lệ chi tiêu theo danh mục
+     * - Không có chữ trong lát, không có lỗ giữa
+     * - Legend (chú thích) hiển thị riêng bên phải
+     */
     private void displayPieChart(List<CategoryTotal> data) {
         pieChart.clear();
 
@@ -158,12 +189,13 @@ public class StatisticsFragment extends Fragment {
             return;
         }
 
-        // 🔹 Chuẩn bị dữ liệu
+        // 🔹 Tạo danh sách dữ liệu cho biểu đồ
         List<PieEntry> entries = new ArrayList<>();
         for (CategoryTotal item : data) {
             entries.add(new PieEntry((float) item.total, item.category));
         }
 
+        // 🔹 Thiết lập màu sắc & kiểu hiển thị
         PieDataSet dataSet = new PieDataSet(entries, "");
         dataSet.setColors(new int[]{
                 Color.parseColor("#4CAF50"),
@@ -175,24 +207,24 @@ public class StatisticsFragment extends Fragment {
                 Color.parseColor("#CDDC39")
         });
         dataSet.setValueTextSize(0f);
-        dataSet.setValueTextColor(Color.TRANSPARENT); // Ẩn text trên lát
+        dataSet.setValueTextColor(Color.TRANSPARENT); // Ẩn text % trong lát
 
+        // 🔹 Gán dữ liệu vào PieChart
         PieData pieData = new PieData(dataSet);
         pieChart.setData(pieData);
 
-        // 🔹 Cấu hình biểu đồ
-        pieChart.setDrawHoleEnabled(false);
-        pieChart.setDrawEntryLabels(false);
+        // 🔹 Tùy chỉnh hiển thị biểu đồ
+        pieChart.setDrawHoleEnabled(false);      // Không hiển thị lỗ giữa
+        pieChart.setDrawEntryLabels(false);      // Không hiển thị nhãn
         pieChart.getDescription().setEnabled(false);
         pieChart.setUsePercentValues(false);
         pieChart.setCenterText(null);
-        pieChart.setTransparentCircleRadius(0f);
-        pieChart.getLegend().setEnabled(false); // 🟢 Tắt legend mặc định
+        pieChart.getLegend().setEnabled(false);  // Tắt legend mặc định
 
         pieChart.animateY(1000);
         pieChart.invalidate();
 
-        // 🔹 Hiển thị legend tùy chỉnh bên phải
+        // 🔹 Tạo legend tùy chỉnh bên phải (hiển thị màu + tên danh mục)
         LinearLayout legendLayout = getView().findViewById(R.id.legend_container);
         if (legendLayout != null) {
             legendLayout.removeAllViews();
@@ -200,12 +232,13 @@ public class StatisticsFragment extends Fragment {
             for (int i = 0; i < data.size(); i++) {
                 CategoryTotal item = data.get(i);
 
+                // Layout mỗi dòng trong legend
                 LinearLayout itemLayout = new LinearLayout(getContext());
                 itemLayout.setOrientation(LinearLayout.HORIZONTAL);
                 itemLayout.setPadding(8, 8, 8, 8);
                 itemLayout.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
 
-                // Chấm tròn màu
+                // Tạo chấm tròn màu
                 View colorDot = new View(getContext());
                 int size = (int) (12 * getResources().getDisplayMetrics().density);
                 LinearLayout.LayoutParams dotParams = new LinearLayout.LayoutParams(size, size);
@@ -220,6 +253,7 @@ public class StatisticsFragment extends Fragment {
                 label.setTextSize(14f);
                 label.setTextColor(Color.parseColor("#444444"));
 
+                // Gộp lại
                 itemLayout.addView(colorDot);
                 itemLayout.addView(label);
                 legendLayout.addView(itemLayout);
@@ -227,9 +261,14 @@ public class StatisticsFragment extends Fragment {
         }
     }
 
-
-
-    /** Hiển thị danh sách top expenses (có icon) **/
+    /**
+     * Hiển thị danh sách chi tiêu theo danh mục (Top Expenses)
+     * Mỗi dòng có:
+     * - Icon danh mục
+     * - Tên danh mục
+     * - Tỷ lệ %
+     * - Số tiền
+     */
     private void displayTopExpenses(List<CategoryTotal> topExpenses) {
         expensesContainer.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(getContext());
@@ -242,9 +281,11 @@ public class StatisticsFragment extends Fragment {
             return;
         }
 
+        // Tính tổng chi tiêu để tính phần trăm
         double totalAll = 0;
         for (CategoryTotal item : topExpenses) totalAll += item.total;
 
+        // Tạo từng dòng danh mục
         for (CategoryTotal item : topExpenses) {
             View row = inflater.inflate(R.layout.item_top_expense, expensesContainer, false);
             TextView tvCategory = row.findViewById(R.id.tvCategory);
@@ -257,7 +298,7 @@ public class StatisticsFragment extends Fragment {
             tvPercent.setText(String.format(Locale.getDefault(), "%.1f%%", percent));
             tvAmount.setText(String.format(Locale.getDefault(), "%,.0f VND", item.total));
 
-            // 🟢 Gán icon phù hợp
+            // Gán icon theo tên danh mục
             String cat = item.category.toLowerCase(Locale.ROOT);
             if (cat.contains("food") || cat.contains("ăn") || cat.contains("drink"))
                 imgIcon.setImageResource(R.drawable.ic_food);
@@ -278,7 +319,10 @@ public class StatisticsFragment extends Fragment {
         }
     }
 
-    /** Hiển thị biểu đồ cột **/
+    /**
+     * Hiển thị biểu đồ cột (Bar Chart tự tạo bằng View)
+     * Mỗi tháng là 1 cột, chiều cao tương ứng với số tiền
+     */
     private void displayBarChart(List<MonthTotal> monthlyTotals) {
         if (barChartContainer == null) return;
         barChartContainer.removeAllViews();
@@ -292,11 +336,13 @@ public class StatisticsFragment extends Fragment {
             return;
         }
 
+        // Tìm giá trị lớn nhất để chuẩn hóa chiều cao
         double maxTotal = 0;
         for (MonthTotal item : monthlyTotals) {
             if (item.total > maxTotal) maxTotal = item.total;
         }
 
+        // Màu cho 12 tháng
         int[] colors = {
                 0xFF4CAF50, 0xFF2196F3, 0xFFFFC107, 0xFFFF5722,
                 0xFF9C27B0, 0xFFE91E63, 0xFF3F51B5, 0xFF009688,
@@ -305,6 +351,7 @@ public class StatisticsFragment extends Fragment {
 
         int colorIndex = 0;
 
+        // Duyệt từng tháng và tạo cột
         for (MonthTotal item : monthlyTotals) {
             View monthBar = inflater.inflate(R.layout.item_month_bar, barChartContainer, false);
             TextView tvValue = monthBar.findViewById(R.id.tvValue);
@@ -327,6 +374,9 @@ public class StatisticsFragment extends Fragment {
         }
     }
 
+    /**
+     * Đổi tháng dạng số ("01") sang chữ ("Jan")
+     */
     private String getMonthName(String month) {
         switch (month) {
             case "01": return "Jan";

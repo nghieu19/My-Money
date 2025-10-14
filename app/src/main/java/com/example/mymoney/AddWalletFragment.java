@@ -72,7 +72,7 @@ public class AddWalletFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+
         initializeViews(view);
         setupListeners();
     }
@@ -80,17 +80,17 @@ public class AddWalletFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        
+
         // Hide main header and footer when this fragment becomes visible
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).hideMainHeaderAndFooter();
         }
     }
-    
+
     @Override
     public void onPause() {
         super.onPause();
-        
+
         // Only show header/footer if we're leaving the wallet creation flow entirely
         // Check if the next fragment is NOT a wallet creation fragment
         if (getActivity() != null && isRemoving()) {
@@ -141,14 +141,14 @@ public class AddWalletFragment extends Fragment {
         // For now, just cycle through some common currencies
         String[] currencies = {"VND", "USD", "EUR", "GBP", "JPY"};
         int currentIndex = -1;
-        
+
         for (int i = 0; i < currencies.length; i++) {
             if (currencies[i].equals(selectedCurrency)) {
                 currentIndex = i;
                 break;
             }
         }
-        
+
         int nextIndex = (currentIndex + 1) % currencies.length;
         selectedCurrency = currencies[nextIndex];
         tvCurrency.setText(selectedCurrency);
@@ -189,7 +189,7 @@ public class AddWalletFragment extends Fragment {
         if (getContext() != null) {
             // Disable save button to prevent double submission
             btnSave.setEnabled(false);
-            
+
             // Create wallet object
             Wallet wallet = new Wallet();
             wallet.setName(walletName);
@@ -199,22 +199,22 @@ public class AddWalletFragment extends Fragment {
             wallet.setDescription(note);
             wallet.setActive(true);
             wallet.setUserId(MainActivity.getCurrentUserId()); // Use current logged-in user
-            
+
             // Insert wallet in background thread
             AppDatabase db = AppDatabase.getInstance(getContext());
             new Thread(() -> {
                 try {
                     long walletId = db.walletDao().insert(wallet);
-                    
+
                     // Show success message on UI thread
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
                             Toast.makeText(getContext(), "Wallet saved successfully!", Toast.LENGTH_SHORT).show();
-                            
+
                             // Navigate back to home - clear back stack and return to HomeFragment
                             if (getActivity() != null) {
-                                getActivity().getSupportFragmentManager().popBackStack(null, 
-                                    androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                getActivity().getSupportFragmentManager().popBackStack(null,
+                                        androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             }
                         });
                     }
@@ -222,29 +222,13 @@ public class AddWalletFragment extends Fragment {
                     // Handle error on UI thread
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "Error saving wallet: " + e.getMessage(), 
-                                Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Error saving wallet: " + e.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
                             btnSave.setEnabled(true);
                         });
                     }
                 }
             }).start();
-        }
-    }
-
-    /**
-     * Returns the user-friendly name of the wallet type
-     */
-    private String getWalletTypeName() {
-        switch (walletType) {
-            case NewWalletFragment.WALLET_TYPE_CASH:
-                return "Cash";
-            case NewWalletFragment.WALLET_TYPE_BANK:
-                return "Bank Account";
-            case NewWalletFragment.WALLET_TYPE_VIRTUAL:
-                return "Virtual Account";
-            default:
-                return "Unknown";
         }
     }
 }

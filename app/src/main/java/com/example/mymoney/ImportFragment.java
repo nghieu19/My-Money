@@ -63,19 +63,19 @@ public class ImportFragment extends Fragment {
     private LinearLayout recurringSection;
     private Spinner recurringSpinner;
     private Button saveButton;
-    
+
     // OCR related fields
     private LinearLayout btnCamera;
     private ActivityResultLauncher<Intent> cameraLauncher;
     private ActivityResultLauncher<Intent> galleryLauncher;
     private Uri imageUri;
     private static final int CAMERA_PERMISSION_CODE = 100;
-    
+
     private String selectedType = "expense"; // Default to expense
     private Calendar selectedDate;
     private int selectedCategoryId = -1; // Will be loaded from database
     private Category selectedCategory = null;
-    
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -85,10 +85,10 @@ public class ImportFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+
         // Initialize OCR launchers first
         setupOCRLaunchers();
-        
+
         // Initialize views
         expenseSelector = view.findViewById(R.id.expense_selector);
         incomeSelector = view.findViewById(R.id.income_selector);
@@ -106,42 +106,42 @@ public class ImportFragment extends Fragment {
         recurringSpinner = view.findViewById(R.id.recurring_spinner);
         saveButton = view.findViewById(R.id.save_button);
         btnCamera = view.findViewById(R.id.btnCamera);
-        
+
         // Initialize selected date to today
         selectedDate = Calendar.getInstance();
         updateDateDisplay();
-        
+
         // Set up recurring spinner
         setupRecurringSpinner();
-        
+
         // Set up click listeners
         setupListeners();
-        
+
         // Set up OCR button
         setupOCRButton();
-        
+
         // Load default category from database
         loadDefaultCategory();
     }
-    
+
     private void setupRecurringSpinner() {
         String[] recurringOptions = {
-            getString(R.string.daily),
-            getString(R.string.weekly),
-            getString(R.string.monthly),
-            getString(R.string.yearly)
+                getString(R.string.daily),
+                getString(R.string.weekly),
+                getString(R.string.monthly),
+                getString(R.string.yearly)
         };
-        
+
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            recurringOptions
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                recurringOptions
         );
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         recurringSpinner.setAdapter(adapter);
         recurringSpinner.setSelection(2); // Default to Monthly
     }
-    
+
     private void setupListeners() {
         // Transaction type selectors
         expenseSelector.setOnClickListener(v -> {
@@ -152,13 +152,13 @@ public class ImportFragment extends Fragment {
             selectTransactionType("income");
             loadCategoriesForType("income");
         });
-        
+
         // Date selector
         dateSelector.setOnClickListener(v -> showDatePicker());
-        
+
         // Category selector
         categorySelector.setOnClickListener(v -> showCategoryDialog());
-        
+
         // Repeat radio group
         repeatRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.repeat_yes) {
@@ -167,14 +167,14 @@ public class ImportFragment extends Fragment {
                 recurringSection.setVisibility(View.GONE);
             }
         });
-        
+
         // Save button
         saveButton.setOnClickListener(v -> saveTransaction());
     }
-    
+
     private void selectTransactionType(String type) {
         selectedType = type;
-        
+
         if (type.equals("expense")) {
             expenseSelector.setBackgroundResource(R.drawable.selector_background);
             incomeSelector.setBackgroundResource(R.drawable.search_background);
@@ -184,35 +184,35 @@ public class ImportFragment extends Fragment {
             expenseSelector.setBackgroundResource(R.drawable.search_background);
         }
     }
-    
+
     private void showDatePicker() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(
-            requireContext(),
-            (view, year, month, dayOfMonth) -> {
-                selectedDate.set(Calendar.YEAR, year);
-                selectedDate.set(Calendar.MONTH, month);
-                selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateDateDisplay();
-            },
-            selectedDate.get(Calendar.YEAR),
-            selectedDate.get(Calendar.MONTH),
-            selectedDate.get(Calendar.DAY_OF_MONTH)
+                requireContext(),
+                (view, year, month, dayOfMonth) -> {
+                    selectedDate.set(Calendar.YEAR, year);
+                    selectedDate.set(Calendar.MONTH, month);
+                    selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    updateDateDisplay();
+                },
+                selectedDate.get(Calendar.YEAR),
+                selectedDate.get(Calendar.MONTH),
+                selectedDate.get(Calendar.DAY_OF_MONTH)
         );
         datePickerDialog.show();
     }
-    
+
     private void updateDateDisplay() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         dateText.setText(sdf.format(selectedDate.getTime()));
     }
-    
+
     /**
      * Load the first available category from database as default
      */
     private void loadDefaultCategory() {
         loadCategoriesForType(selectedType);
     }
-    
+
     /**
      * Load categories based on transaction type (expense or income)
      */
@@ -220,7 +220,7 @@ public class ImportFragment extends Fragment {
         new Thread(() -> {
             try {
                 AppDatabase db = AppDatabase.getInstance(requireContext());
-                
+
                 // Get categories by type
                 List<Category> categories;
                 if (type.equals("expense")) {
@@ -230,7 +230,7 @@ public class ImportFragment extends Fragment {
                     categories = db.categoryDao().getAllIncomeCategories();
                     android.util.Log.d("ImportFragment", "Loaded " + categories.size() + " income categories");
                 }
-                
+
                 if (!categories.isEmpty() && getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         // Auto-select first category if none selected or type changed
@@ -250,7 +250,7 @@ public class ImportFragment extends Fragment {
             }
         }).start();
     }
-    
+
     /**
      * Show category selection dialog
      */
@@ -258,20 +258,20 @@ public class ImportFragment extends Fragment {
         Dialog dialog = new Dialog(requireContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_category_selection);
-        
+
         RecyclerView recyclerView = dialog.findViewById(R.id.categories_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        
+
         CategoryAdapter adapter = new CategoryAdapter(category -> {
             selectedCategory = category;
             selectedCategoryId = category.getId();
             updateCategoryDisplay();
             dialog.dismiss();
         });
-        
+
         adapter.setSelectedCategoryId(selectedCategoryId);
         recyclerView.setAdapter(adapter);
-        
+
         // Load categories based on current type
         new Thread(() -> {
             try {
@@ -284,7 +284,7 @@ public class ImportFragment extends Fragment {
                     categories = db.categoryDao().getAllIncomeCategories();
                     android.util.Log.d("ImportFragment", "Dialog: Loaded " + categories.size() + " income categories");
                 }
-                
+
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         adapter.setCategories(categories);
@@ -296,21 +296,21 @@ public class ImportFragment extends Fragment {
                 e.printStackTrace();
             }
         }).start();
-        
+
         dialog.show();
         Window window = dialog.getWindow();
         if (window != null) {
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
     }
-    
+
     /**
      * Update category display with selected category
      */
     private void updateCategoryDisplay() {
         if (selectedCategory != null) {
             categoryText.setText(selectedCategory.getName());
-            
+
             // Set icon based on category name
             int iconRes;
             switch (selectedCategory.getName().toLowerCase()) {
@@ -350,11 +350,11 @@ public class ImportFragment extends Fragment {
             categoryIcon.setVisibility(View.GONE);
         }
     }
-    
+
     private void saveTransaction() {
         // Get selected wallet from MainActivity
         int walletId = MainActivity.getSelectedWalletId();
-        
+
         // If no wallet selected, try to get the first available wallet
         if (walletId == -1) {
             new Thread(() -> {
@@ -367,18 +367,18 @@ public class ImportFragment extends Fragment {
                     }
                 } else {
                     if (getActivity() != null) {
-                        getActivity().runOnUiThread(() -> 
-                            Toast.makeText(requireContext(), "Please create a wallet first", Toast.LENGTH_SHORT).show()
+                        getActivity().runOnUiThread(() ->
+                                Toast.makeText(requireContext(), "Please create a wallet first", Toast.LENGTH_SHORT).show()
                         );
                     }
                 }
             }).start();
             return;
         }
-        
+
         saveTransactionWithWallet();
     }
-    
+
     private void saveTransactionWithWallet() {
         // Validate input
         String amountStr = amountInput.getText().toString().trim();
@@ -386,13 +386,13 @@ public class ImportFragment extends Fragment {
             Toast.makeText(requireContext(), "Please enter amount", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         // Check if category is selected
         if (selectedCategoryId == -1 || selectedCategory == null) {
             Toast.makeText(requireContext(), "Please select a category", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         double amount;
         try {
             amount = Double.parseDouble(amountStr);
@@ -404,7 +404,7 @@ public class ImportFragment extends Fragment {
             Toast.makeText(requireContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         // Create transaction object
         Transaction transaction = new Transaction();
         transaction.setWalletId(MainActivity.getSelectedWalletId());
@@ -415,11 +415,11 @@ public class ImportFragment extends Fragment {
         transaction.setType(selectedType);
         transaction.setCreatedAt(selectedDate.getTimeInMillis());
         transaction.setUpdatedAt(System.currentTimeMillis());
-        
+
         // Handle recurring
         boolean isRecurring = repeatYes.isChecked();
         transaction.setRecurring(isRecurring);
-        
+
         if (isRecurring) {
             String[] intervals = {"daily", "weekly", "monthly", "yearly"};
             int selectedPosition = recurringSpinner.getSelectedItemPosition();
@@ -427,22 +427,22 @@ public class ImportFragment extends Fragment {
         } else {
             transaction.setRecurringInterval(null);
         }
-        
+
         // Save to database in background thread
         new Thread(() -> {
             try {
                 AppDatabase db = AppDatabase.getInstance(requireContext());
                 long transactionId = db.transactionDao().insert(transaction);
-                
+
                 // Update wallet balance
                 updateWalletBalance(transaction);
-                
+
                 // Show success message on UI thread
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         Toast.makeText(requireContext(), "Transaction saved successfully!", Toast.LENGTH_SHORT).show();
                         clearForm();
-                        
+
                         // Refresh HomeFragment if it exists
                         refreshHomeFragment();
                     });
@@ -457,39 +457,39 @@ public class ImportFragment extends Fragment {
             }
         }).start();
     }
-    
+
     private void updateWalletBalance(Transaction transaction) {
         try {
             AppDatabase db = AppDatabase.getInstance(requireContext());
-            com.example.mymoney.database.entity.Wallet wallet = 
-                db.walletDao().getWalletById(transaction.getWalletId());
-            
+            com.example.mymoney.database.entity.Wallet wallet =
+                    db.walletDao().getWalletById(transaction.getWalletId());
+
             if (wallet != null) {
                 double currentBalance = wallet.getBalance();
                 double newBalance;
-                
+
                 if (transaction.getType().equals("income")) {
                     newBalance = currentBalance + transaction.getAmount();
                 } else {
                     newBalance = currentBalance - transaction.getAmount();
                 }
-                
+
                 wallet.setBalance(newBalance);
                 db.walletDao().update(wallet);
-                
+
                 android.util.Log.d("ImportFragment", "Wallet balance updated: " + currentBalance + " -> " + newBalance);
             }
         } catch (Exception e) {
             android.util.Log.e("ImportFragment", "Error updating wallet balance", e);
         }
     }
-    
+
     private void refreshHomeFragment() {
         // Refresh HomeFragment and HistoryFragment after saving transaction
         if (getActivity() instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) getActivity();
             androidx.fragment.app.FragmentManager fragmentManager = mainActivity.getSupportFragmentManager();
-            
+
             // Find and refresh HomeFragment if it exists
             for (androidx.fragment.app.Fragment fragment : fragmentManager.getFragments()) {
                 if (fragment instanceof HomeFragment && fragment.isAdded()) {
@@ -503,7 +503,7 @@ public class ImportFragment extends Fragment {
             }
         }
     }
-    
+
     private void clearForm() {
         amountInput.setText("");
         notesInput.setText("");
@@ -514,9 +514,9 @@ public class ImportFragment extends Fragment {
         selectedType = "expense";
         selectTransactionType("expense");
     }
-    
+
     // ==================== OCR Methods ====================
-    
+
     /**
      * Setup OCR activity result launchers
      */
@@ -546,7 +546,7 @@ public class ImportFragment extends Fragment {
                 }
         );
     }
-    
+
     /**
      * Setup OCR button click listener
      */
@@ -567,7 +567,7 @@ public class ImportFragment extends Fragment {
             });
         }
     }
-    
+
     /**
      * Check camera permission and open camera
      */
@@ -725,7 +725,7 @@ public class ImportFragment extends Fragment {
             } else {
                 sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
             }
-            
+
             selectedDate.setTime(sdf.parse(dateString));
             updateDateDisplay();
         } catch (Exception e) {
@@ -743,7 +743,7 @@ public class ImportFragment extends Fragment {
             });
         }
     }
-    
+
     /**
      * Find and set category by name
      */
@@ -752,13 +752,13 @@ public class ImportFragment extends Fragment {
             try {
                 AppDatabase db = AppDatabase.getInstance(requireContext());
                 List<Category> categories;
-                
+
                 if (selectedType.equals("expense")) {
                     categories = db.categoryDao().getAllExpenseCategories();
                 } else {
                     categories = db.categoryDao().getAllIncomeCategories();
                 }
-                
+
                 // Find matching category
                 Category matchedCategory = null;
                 for (Category cat : categories) {
@@ -767,7 +767,7 @@ public class ImportFragment extends Fragment {
                         break;
                     }
                 }
-                
+
                 if (matchedCategory != null) {
                     Category finalCategory = matchedCategory;
                     if (getActivity() != null) {

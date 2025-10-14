@@ -1,5 +1,6 @@
 package com.example.mymoney;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -30,6 +31,13 @@ public class HistoryFragment extends Fragment {
     private ImageView filterIcon;
     
     private List<Transaction> allTransactions = new ArrayList<>();
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        // ✅ Đây là nơi áp dụng ngôn ngữ cho Fragment
+        super.onAttach(LocaleHelper.onAttach(context));
+    }
+
 
     @Nullable
     @Override

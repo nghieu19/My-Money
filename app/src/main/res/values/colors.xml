@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+
     
     <!-- Main theme colors -->
     <color name="background">#f8f9fa</color>
-    <color name="text_primary">#212529</color>
-    <color name="text_secondary">#6c757d</color>
+
     
     <!-- App specific colors -->
     <color name="primary_green">#0c7c65</color>
@@ -40,4 +39,11 @@
     <color name="dropdown_border">#1c000000</color>
     <color name="dropdown_text">#60000000</color>
     <color name="bar_chart_blue">#662A74D4</color>
+
+    <color name="yellow">#FFD700</color>
+
+    <color name="primary_dark">#1B5E20</color>
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#666666</color>
+    <color name="white">#FFFFFF</color>
 </resources>

@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="?android:windowBackground"
     android:fitsSystemWindows="false"
     tools:context=".MainActivity">
 
@@ -187,8 +187,9 @@
             </LinearLayout>
 
             <!-- Settings Item -->
+            <!-- Themes Item -->
             <LinearLayout
-                android:id="@+id/settings_preferences"
+                android:id="@+id/settings_themes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -200,6 +201,7 @@
                 android:focusable="true">
 
                 <ImageView
+                    android:id="@+id/imgThemeIcon"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_sun"
@@ -209,11 +211,11 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Settings"
+                    android:text="Themes"
                     android:textSize="14sp"
                     android:textColor="@color/text_primary" />
-
             </LinearLayout>
+
 
             <!-- Language Item -->
             <LinearLayout
