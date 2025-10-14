@@ -9,6 +9,9 @@
         <!-- Màu nền và text -->
         <item name="android:windowBackground">@color/white</item>
         <item name="android:textColor">@color/text_primary</item>
+        <item name="colorControlNormal">@null</item>
+        <item name="android:tint">@null</item>
+
     </style>
 
 </resources>

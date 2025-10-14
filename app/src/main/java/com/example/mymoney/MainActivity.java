@@ -76,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
         headerDivider = findViewById(R.id.header_divider);
         bottomNavigation = findViewById(R.id.bottom_navigation);
 
+
+
         updateCurrentUserId();
         setupWalletButton();
         setupSettingsButton();

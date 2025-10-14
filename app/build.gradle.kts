@@ -39,12 +39,21 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
-    
+
     // ML Kit Text Recognition for OCR
     implementation("com.google.mlkit:text-recognition:16.0.0")
-    
+
+    // OpenCV for image preprocessing
+    implementation("org.opencv:opencv:4.12.0")
+
+    // Retrofit for API calls (AI Chatbot)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.google.code.gson:gson:2.10.1")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("io.github.cdimascio:dotenv-java:3.0.0")
 }

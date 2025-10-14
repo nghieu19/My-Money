@@ -2,6 +2,7 @@ package com.example.mymoney;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -247,16 +248,27 @@ public class StatisticsFragment extends Fragment {
                 colorDot.setBackgroundResource(R.drawable.legend_dot_shape);
                 colorDot.getBackground().setTint(dataSet.getColors().get(i % dataSet.getColors().size()));
 
-                // Tên danh mục
+                // Tên danh mục (đổi màu theo Light / Dark mode)
                 TextView label = new TextView(getContext());
                 label.setText(item.category);
                 label.setTextSize(14f);
-                label.setTextColor(Color.parseColor("#444444"));
+
+                int textColor;
+                if ((getResources().getConfiguration().uiMode &
+                        Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
+                    textColor = Color.WHITE; // Dark mode
+                } else {
+                    textColor = Color.parseColor("#333333"); // Light mode
+                }
+                label.setTextColor(textColor);
+
+
 
                 // Gộp lại
                 itemLayout.addView(colorDot);
                 itemLayout.addView(label);
                 legendLayout.addView(itemLayout);
+
             }
         }
     }

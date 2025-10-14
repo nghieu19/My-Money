@@ -1,49 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Base colors -->
     <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
 
-    
-    <!-- Main theme colors -->
-    <color name="background">#f8f9fa</color>
-
-    
-    <!-- App specific colors -->
-    <color name="primary_green">#0c7c65</color>
+    <!-- 🌿 App theme main -->
+    <color name="primary_green">#0C7C65</color>
     <color name="mint_green">#A8E6CF</color>
     <color name="light_mint_green">#B5EDD8</color>
-    <color name="red_expense">#c50000</color>
-    <color name="expense_red">#c50000</color>
-    <color name="green_income">#00ce0e</color>
-    <color name="income_green">#00ce0e</color>
-    <color name="gray_text">#666666</color>
-    <color name="light_gray">#f5f5f5</color>
-    <color name="dark_gray">#666666</color>
-    <color name="gray">#9E9E9E</color>
-    <color name="teal_700">#018786</color>
+    <color name="primary_dark">#1B5E20</color>
 
+    <!-- 🖋 Text colors -->
+    <color name="text_primary">#1A1A1A</color>        <!-- Đậm hơn để dễ đọc -->
+    <color name="text_secondary">#4A4A4A</color>      <!-- Dùng cho mô tả, phụ -->
+    <color name="text_disabled">#888888</color>       <!-- Dùng cho chữ mờ -->
+    <color name="gray_text">#666666</color>           <!-- Giữ cho backward compat -->
 
-    <!-- Chart colors -->
-    <color name="chart_red">#ff4444</color>
-    <color name="chart_green">#44ff44</color>
-    <color name="chart_blue">#2A74D4</color>
-    <color name="chart_orange">#FF8C00</color>
-    <color name="chart_purple">#9932CC</color>
-    <color name="chart_yellow">#FFD700</color>
-    <color name="chart_teal">#20B2AA</color>
-    
-    <!-- UI element colors -->
-    <color name="item_background">#30d9d9d9</color>
-    <color name="search_hint">#76000000</color>
-    <color name="transaction_subtitle">#80000000</color>
-    <color name="search_border">#2b000000</color>
-    <color name="dropdown_border">#1c000000</color>
-    <color name="dropdown_text">#60000000</color>
-    <color name="bar_chart_blue">#662A74D4</color>
-
+    <!-- ❤️ Accent colors -->
+    <color name="red_expense">#D32F2F</color>         <!-- đỏ dịu -->
+    <color name="expense_red">#D32F2F</color>
+    <color name="green_income">#00B050</color>
+    <color name="income_green">#00B050</color>
     <color name="yellow">#FFD700</color>
 
-    <color name="primary_dark">#1B5E20</color>
-    <color name="text_primary">#000000</color>
-    <color name="text_secondary">#666666</color>
-    <color name="white">#FFFFFF</color>
+    <!-- 🎨 Chart colors -->
+    <color name="chart_red">#FF5252</color>
+    <color name="chart_green">#4CAF50</color>
+    <color name="chart_blue">#2196F3</color>
+    <color name="chart_orange">#FF9800</color>
+    <color name="chart_purple">#9C27B0</color>
+    <color name="chart_yellow">#FFEB3B</color>
+    <color name="chart_teal">#009688</color>
+    <color name="bar_chart_blue">#662A74D4</color>
+
+    <!-- 🧩 UI surfaces -->
+    <color name="background">#F8F9FA</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="item_background">#30D9D9D9</color>
+    <color name="light_gray">#F5F5F5</color>
+    <color name="dark_gray">#444444</color>
+    <color name="gray">#9E9E9E</color>
+
+    <!-- 🔲 Inputs & outlines -->
+    <color name="search_hint">#76000000</color>
+    <color name="transaction_subtitle">#80000000</color>
+    <color name="search_border">#2B000000</color>
+    <color name="dropdown_border">#1C000000</color>
+    <color name="dropdown_text">#60000000</color>
+
+    <!-- ⚠️ System / Error -->
+    <color name="error_red">#F44336</color>
+
+    <!-- 🌓 Dark mode fallback mapping -->
+    <color name="background_dark">#FFFFFF</color>
+    <color name="surface_dark">#F5F5F5</color>
+    <color name="text_primary_dark">#000000</color>
+    <color name="text_secondary_dark">#666666</color>
+    <color name="teal_700">#018786</color>
+    <color name="panel_background">#E8F5F1</color>
+
 </resources>
