@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Food"
-            android:textSize="10sp"
+            android:textSize="14sp"
             android:textColor="@color/black"
             android:textStyle="bold" />
 
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="1:00"
-            android:textSize="8sp"
+            android:textSize="12sp"
             android:textColor="@color/transaction_subtitle"
             android:lineSpacingExtra="-2dp" />
 
@@ -47,7 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="-500,000 VND"
-        android:textSize="10sp"
+        android:textSize="14sp"
         android:textColor="@color/expense_red"
         android:textStyle="bold" />
 
