@@ -39,31 +39,24 @@ import com.example.mymoney.database.AppDatabase;
 import com.example.mymoney.database.entity.Category;
 import com.example.mymoney.database.entity.Transaction;
 import com.google.mlkit.vision.common.InputImage;
-import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 
-import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
-import org.opencv.core.Mat;
-import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
-
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import android.Manifest;
+import android.speech.RecognizerIntent;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import androidx.core.app.ActivityCompat;
+
+import java.util.ArrayList;
+
 
 public class ImportFragment extends Fragment {
 
@@ -77,19 +70,24 @@ public class ImportFragment extends Fragment {
     private LinearLayout recurringSection;
     private Spinner recurringSpinner;
     private Button saveButton;
-    
+
     // OCR related fields
     private LinearLayout btnCamera;
     private ActivityResultLauncher<Intent> cameraLauncher;
     private ActivityResultLauncher<Intent> galleryLauncher;
     private Uri imageUri;
     private static final int CAMERA_PERMISSION_CODE = 100;
-    
+
     private String selectedType = "expense"; // Default to expense
     private Calendar selectedDate;
     private int selectedCategoryId = -1; // Will be loaded from database
     private Category selectedCategory = null;
-    
+    // 🎤 Voice input fields
+    private LinearLayout btnVoice;
+    private static final int REQUEST_RECORD_AUDIO = 200;
+    private static final int REQUEST_SPEECH_INPUT = 201;
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -99,17 +97,13 @@ public class ImportFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
-        // Initialize OpenCV
-        if (!OpenCVLoader.initDebug()) {
-            android.util.Log.e("ImportFragment", "OpenCV initialization failed");
-        } else {
-            android.util.Log.d("ImportFragment", "OpenCV initialized successfully");
-        }
-        
+        btnVoice = view.findViewById(R.id.btnVoice);
+        setupVoiceButton();
+
+
         // Initialize OCR launchers first
         setupOCRLaunchers();
-        
+
         // Initialize views
         expenseSelector = view.findViewById(R.id.expense_selector);
         incomeSelector = view.findViewById(R.id.income_selector);
@@ -127,42 +121,42 @@ public class ImportFragment extends Fragment {
         recurringSpinner = view.findViewById(R.id.recurring_spinner);
         saveButton = view.findViewById(R.id.save_button);
         btnCamera = view.findViewById(R.id.btnCamera);
-        
+
         // Initialize selected date to today
         selectedDate = Calendar.getInstance();
         updateDateDisplay();
-        
+
         // Set up recurring spinner
         setupRecurringSpinner();
-        
+
         // Set up click listeners
         setupListeners();
-        
+
         // Set up OCR button
         setupOCRButton();
-        
+
         // Load default category from database
         loadDefaultCategory();
     }
-    
+
     private void setupRecurringSpinner() {
         String[] recurringOptions = {
-            getString(R.string.daily),
-            getString(R.string.weekly),
-            getString(R.string.monthly),
-            getString(R.string.yearly)
+                getString(R.string.daily),
+                getString(R.string.weekly),
+                getString(R.string.monthly),
+                getString(R.string.yearly)
         };
-        
+
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            recurringOptions
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                recurringOptions
         );
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         recurringSpinner.setAdapter(adapter);
         recurringSpinner.setSelection(2); // Default to Monthly
     }
-    
+
     private void setupListeners() {
         // Transaction type selectors
         expenseSelector.setOnClickListener(v -> {
@@ -173,13 +167,13 @@ public class ImportFragment extends Fragment {
             selectTransactionType("income");
             loadCategoriesForType("income");
         });
-        
+
         // Date selector
         dateSelector.setOnClickListener(v -> showDatePicker());
-        
+
         // Category selector
         categorySelector.setOnClickListener(v -> showCategoryDialog());
-        
+
         // Repeat radio group
         repeatRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.repeat_yes) {
@@ -188,14 +182,14 @@ public class ImportFragment extends Fragment {
                 recurringSection.setVisibility(View.GONE);
             }
         });
-        
+
         // Save button
         saveButton.setOnClickListener(v -> saveTransaction());
     }
-    
+
     private void selectTransactionType(String type) {
         selectedType = type;
-        
+
         if (type.equals("expense")) {
             expenseSelector.setBackgroundResource(R.drawable.selector_background);
             incomeSelector.setBackgroundResource(R.drawable.search_background);
@@ -205,35 +199,35 @@ public class ImportFragment extends Fragment {
             expenseSelector.setBackgroundResource(R.drawable.search_background);
         }
     }
-    
+
     private void showDatePicker() {
         DatePickerDialog datePickerDialog = new DatePickerDialog(
-            requireContext(),
-            (view, year, month, dayOfMonth) -> {
-                selectedDate.set(Calendar.YEAR, year);
-                selectedDate.set(Calendar.MONTH, month);
-                selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                updateDateDisplay();
-            },
-            selectedDate.get(Calendar.YEAR),
-            selectedDate.get(Calendar.MONTH),
-            selectedDate.get(Calendar.DAY_OF_MONTH)
+                requireContext(),
+                (view, year, month, dayOfMonth) -> {
+                    selectedDate.set(Calendar.YEAR, year);
+                    selectedDate.set(Calendar.MONTH, month);
+                    selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    updateDateDisplay();
+                },
+                selectedDate.get(Calendar.YEAR),
+                selectedDate.get(Calendar.MONTH),
+                selectedDate.get(Calendar.DAY_OF_MONTH)
         );
         datePickerDialog.show();
     }
-    
+
     private void updateDateDisplay() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         dateText.setText(sdf.format(selectedDate.getTime()));
     }
-    
+
     /**
      * Load the first available category from database as default
      */
     private void loadDefaultCategory() {
         loadCategoriesForType(selectedType);
     }
-    
+
     /**
      * Load categories based on transaction type (expense or income)
      */
@@ -241,7 +235,7 @@ public class ImportFragment extends Fragment {
         new Thread(() -> {
             try {
                 AppDatabase db = AppDatabase.getInstance(requireContext());
-                
+
                 // Get categories by type
                 List<Category> categories;
                 if (type.equals("expense")) {
@@ -251,7 +245,7 @@ public class ImportFragment extends Fragment {
                     categories = db.categoryDao().getAllIncomeCategories();
                     android.util.Log.d("ImportFragment", "Loaded " + categories.size() + " income categories");
                 }
-                
+
                 if (!categories.isEmpty() && getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         // Auto-select first category if none selected or type changed
@@ -271,7 +265,7 @@ public class ImportFragment extends Fragment {
             }
         }).start();
     }
-    
+
     /**
      * Show category selection dialog
      */
@@ -279,20 +273,20 @@ public class ImportFragment extends Fragment {
         Dialog dialog = new Dialog(requireContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_category_selection);
-        
+
         RecyclerView recyclerView = dialog.findViewById(R.id.categories_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        
+
         CategoryAdapter adapter = new CategoryAdapter(category -> {
             selectedCategory = category;
             selectedCategoryId = category.getId();
             updateCategoryDisplay();
             dialog.dismiss();
         });
-        
+
         adapter.setSelectedCategoryId(selectedCategoryId);
         recyclerView.setAdapter(adapter);
-        
+
         // Load categories based on current type
         new Thread(() -> {
             try {
@@ -305,7 +299,7 @@ public class ImportFragment extends Fragment {
                     categories = db.categoryDao().getAllIncomeCategories();
                     android.util.Log.d("ImportFragment", "Dialog: Loaded " + categories.size() + " income categories");
                 }
-                
+
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         adapter.setCategories(categories);
@@ -317,21 +311,21 @@ public class ImportFragment extends Fragment {
                 e.printStackTrace();
             }
         }).start();
-        
+
         dialog.show();
         Window window = dialog.getWindow();
         if (window != null) {
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
     }
-    
+
     /**
      * Update category display with selected category
      */
     private void updateCategoryDisplay() {
         if (selectedCategory != null) {
             categoryText.setText(selectedCategory.getName());
-            
+
             // Set icon based on category name
             int iconRes;
             switch (selectedCategory.getName().toLowerCase()) {
@@ -371,11 +365,11 @@ public class ImportFragment extends Fragment {
             categoryIcon.setVisibility(View.GONE);
         }
     }
-    
+
     private void saveTransaction() {
         // Get selected wallet from MainActivity
         int walletId = MainActivity.getSelectedWalletId();
-        
+
         // If no wallet selected, try to get the first available wallet
         if (walletId == -1) {
             new Thread(() -> {
@@ -388,18 +382,18 @@ public class ImportFragment extends Fragment {
                     }
                 } else {
                     if (getActivity() != null) {
-                        getActivity().runOnUiThread(() -> 
-                            Toast.makeText(requireContext(), "Please create a wallet first", Toast.LENGTH_SHORT).show()
+                        getActivity().runOnUiThread(() ->
+                                Toast.makeText(requireContext(), "Please create a wallet first", Toast.LENGTH_SHORT).show()
                         );
                     }
                 }
             }).start();
             return;
         }
-        
+
         saveTransactionWithWallet();
     }
-    
+
     private void saveTransactionWithWallet() {
         // Validate input
         String amountStr = amountInput.getText().toString().trim();
@@ -407,13 +401,13 @@ public class ImportFragment extends Fragment {
             Toast.makeText(requireContext(), "Please enter amount", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         // Check if category is selected
         if (selectedCategoryId == -1 || selectedCategory == null) {
             Toast.makeText(requireContext(), "Please select a category", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         double amount;
         try {
             amount = Double.parseDouble(amountStr);
@@ -425,7 +419,7 @@ public class ImportFragment extends Fragment {
             Toast.makeText(requireContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         // Create transaction object
         Transaction transaction = new Transaction();
         transaction.setWalletId(MainActivity.getSelectedWalletId());
@@ -436,11 +430,11 @@ public class ImportFragment extends Fragment {
         transaction.setType(selectedType);
         transaction.setCreatedAt(selectedDate.getTimeInMillis());
         transaction.setUpdatedAt(System.currentTimeMillis());
-        
+
         // Handle recurring
         boolean isRecurring = repeatYes.isChecked();
         transaction.setRecurring(isRecurring);
-        
+
         if (isRecurring) {
             String[] intervals = {"daily", "weekly", "monthly", "yearly"};
             int selectedPosition = recurringSpinner.getSelectedItemPosition();
@@ -448,22 +442,22 @@ public class ImportFragment extends Fragment {
         } else {
             transaction.setRecurringInterval(null);
         }
-        
+
         // Save to database in background thread
         new Thread(() -> {
             try {
                 AppDatabase db = AppDatabase.getInstance(requireContext());
                 long transactionId = db.transactionDao().insert(transaction);
-                
+
                 // Update wallet balance
                 updateWalletBalance(transaction);
-                
+
                 // Show success message on UI thread
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         Toast.makeText(requireContext(), "Transaction saved successfully!", Toast.LENGTH_SHORT).show();
                         clearForm();
-                        
+
                         // Refresh HomeFragment if it exists
                         refreshHomeFragment();
                     });
@@ -478,39 +472,39 @@ public class ImportFragment extends Fragment {
             }
         }).start();
     }
-    
+
     private void updateWalletBalance(Transaction transaction) {
         try {
             AppDatabase db = AppDatabase.getInstance(requireContext());
-            com.example.mymoney.database.entity.Wallet wallet = 
-                db.walletDao().getWalletById(transaction.getWalletId());
-            
+            com.example.mymoney.database.entity.Wallet wallet =
+                    db.walletDao().getWalletById(transaction.getWalletId());
+
             if (wallet != null) {
                 double currentBalance = wallet.getBalance();
                 double newBalance;
-                
+
                 if (transaction.getType().equals("income")) {
                     newBalance = currentBalance + transaction.getAmount();
                 } else {
                     newBalance = currentBalance - transaction.getAmount();
                 }
-                
+
                 wallet.setBalance(newBalance);
                 db.walletDao().update(wallet);
-                
+
                 android.util.Log.d("ImportFragment", "Wallet balance updated: " + currentBalance + " -> " + newBalance);
             }
         } catch (Exception e) {
             android.util.Log.e("ImportFragment", "Error updating wallet balance", e);
         }
     }
-    
+
     private void refreshHomeFragment() {
         // Refresh HomeFragment and HistoryFragment after saving transaction
         if (getActivity() instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) getActivity();
             androidx.fragment.app.FragmentManager fragmentManager = mainActivity.getSupportFragmentManager();
-            
+
             // Find and refresh HomeFragment if it exists
             for (androidx.fragment.app.Fragment fragment : fragmentManager.getFragments()) {
                 if (fragment instanceof HomeFragment && fragment.isAdded()) {
@@ -524,7 +518,7 @@ public class ImportFragment extends Fragment {
             }
         }
     }
-    
+
     private void clearForm() {
         amountInput.setText("");
         notesInput.setText("");
@@ -535,9 +529,9 @@ public class ImportFragment extends Fragment {
         selectedType = "expense";
         selectTransactionType("expense");
     }
-    
+
     // ==================== OCR Methods ====================
-    
+
     /**
      * Setup OCR activity result launchers
      */
@@ -567,7 +561,7 @@ public class ImportFragment extends Fragment {
                 }
         );
     }
-    
+
     /**
      * Setup OCR button click listener
      */
@@ -588,7 +582,7 @@ public class ImportFragment extends Fragment {
             });
         }
     }
-    
+
     /**
      * Check camera permission and open camera
      */
@@ -639,24 +633,18 @@ public class ImportFragment extends Fragment {
     }
 
     /**
-     * Process image using ML Kit OCR with preprocessing
+     * Process image using ML Kit OCR
      */
     private void processImage(Uri uri) {
         try {
-            // Load original image
-            Bitmap originalBitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), uri);
-            
-            // Preprocess image for better OCR accuracy
-            Bitmap preprocessedBitmap = preprocessImage(originalBitmap);
-            
-            // Convert to InputImage
-            InputImage image = InputImage.fromBitmap(preprocessedBitmap, 0);
+            InputImage image = InputImage.fromFilePath(requireContext(), uri);
             TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
             recognizer.process(image)
                     .addOnSuccessListener(visionText -> {
+                        String rawText = visionText.getText();
                         Toast.makeText(requireContext(), "OCR thành công!", Toast.LENGTH_SHORT).show();
-                        handleExtractedTextAdvanced(visionText);
+                        handleExtractedText(rawText);
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(requireContext(), "Lỗi OCR: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -667,470 +655,96 @@ public class ImportFragment extends Fragment {
             Toast.makeText(requireContext(), "Lỗi xử lý ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
-    
-    /**
-     * Preprocess image to improve OCR accuracy
-     * - Convert to grayscale
-     * - Apply Gaussian blur to reduce noise
-     * - Apply adaptive thresholding
-     */
-    private Bitmap preprocessImage(Bitmap originalBitmap) {
-        try {
-            Mat mat = new Mat();
-            Utils.bitmapToMat(originalBitmap, mat);
-            
-            // 1. Convert to grayscale
-            Mat grayMat = new Mat();
-            Imgproc.cvtColor(mat, grayMat, Imgproc.COLOR_RGB2GRAY);
-            
-            // 2. Apply Gaussian blur to reduce noise
-            Mat blurredMat = new Mat();
-            Imgproc.GaussianBlur(grayMat, blurredMat, new Size(5, 5), 0);
-            
-            // 3. Apply adaptive thresholding (better than Otsu for receipts)
-            Mat thresholdMat = new Mat();
-            Imgproc.adaptiveThreshold(
-                blurredMat, 
-                thresholdMat, 
-                255, 
-                Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, 
-                Imgproc.THRESH_BINARY, 
-                11, 
-                2
-            );
-            
-            // Convert back to Bitmap
-            Bitmap processedBitmap = Bitmap.createBitmap(
-                thresholdMat.cols(), 
-                thresholdMat.rows(), 
-                Bitmap.Config.ARGB_8888
-            );
-            Utils.matToBitmap(thresholdMat, processedBitmap);
-            
-            // Release resources
-            mat.release();
-            grayMat.release();
-            blurredMat.release();
-            thresholdMat.release();
-            
-            android.util.Log.d("ImportFragment", "Image preprocessing completed");
-            return processedBitmap;
-            
-        } catch (Exception e) {
-            android.util.Log.e("ImportFragment", "Error preprocessing image, using original", e);
-            return originalBitmap;
-        }
-    }
-    
-    /**
-     * Advanced text extraction using ML Kit's structured output
-     * Segments receipt into logical zones and extracts data
-     */
-    private void handleExtractedTextAdvanced(Text visionText) {
-        List<TextLine> allLines = new ArrayList<>();
-        
-        // Extract all text blocks with their positions
-        for (Text.TextBlock block : visionText.getTextBlocks()) {
-            for (Text.Line line : block.getLines()) {
-                if (line.getBoundingBox() != null) {
-                    TextLine textLine = new TextLine(
-                        line.getText(),
-                        line.getBoundingBox().top,
-                        line.getBoundingBox().bottom
-                    );
-                    allLines.add(textLine);
-                    android.util.Log.d("ImportFragment", "Line: " + line.getText() + " at Y: " + line.getBoundingBox().top);
-                }
-            }
-        }
-        
-        // Sort lines by Y-coordinate (top to bottom)
-        Collections.sort(allLines, Comparator.comparingInt(l -> l.y));
-        
-        // Extract data from structured lines
-        String amount = extractAmountAdvanced(allLines);
-        String date = extractDateAdvanced(allLines);
-        String category = extractCategoryAdvanced(allLines);
-        
-        // Fill the form
-        fillFormFromOCR("", amount, category, date);
-    }
-    
-    /**
-     * Helper class to store text line with position
-     */
-    private static class TextLine {
-        String text;
-        int y;
-        int yBottom;
-        
-        TextLine(String text, int y, int yBottom) {
-            this.text = text;
-            this.y = y;
-            this.yBottom = yBottom;
-        }
-    }
-    
-    /**
-     * Extract amount using receipt structure and keywords
-     */
-    private String extractAmountAdvanced(List<TextLine> lines) {
-        String amount = "";
-        double maxAmount = 0;
-        
-        // Keywords that indicate total amount (in order of priority)
-        String[] totalKeywords = {
-            "total amount", "tổng tiền", "tổng cộng", "grand total",
-            "total", "tổng", "thành tiền", "sum", "amount", "số tiền"
-        };
-        
-        // 1. First priority: Find lines with total keywords
-        for (TextLine line : lines) {
-            String textLower = line.text.toLowerCase();
-            
-            for (String keyword : totalKeywords) {
-                if (textLower.contains(keyword)) {
-                    // Extract number from this line or next line
-                    String extractedAmount = extractNumberFromLine(line.text);
-                    
-                    if (!extractedAmount.isEmpty()) {
-                        android.util.Log.d("ImportFragment", "Amount found with keyword '" + keyword + "': " + extractedAmount);
-                        return extractedAmount;
-                    }
-                    
-                    // Check next line (total might be on separate line)
-                    int currentIndex = lines.indexOf(line);
-                    if (currentIndex < lines.size() - 1) {
-                        extractedAmount = extractNumberFromLine(lines.get(currentIndex + 1).text);
-                        if (!extractedAmount.isEmpty()) {
-                            android.util.Log.d("ImportFragment", "Amount found in next line after keyword: " + extractedAmount);
-                            return extractedAmount;
-                        }
-                    }
-                }
-            }
-        }
-        
-        // 2. Second priority: Find the largest amount in the bottom 30% of receipt
-        int bottomThreshold = (int) (lines.size() * 0.7);
-        for (int i = bottomThreshold; i < lines.size(); i++) {
-            String extractedAmount = extractNumberFromLine(lines.get(i).text);
-            if (!extractedAmount.isEmpty()) {
-                try {
-                    double num = Double.parseDouble(extractedAmount);
-                    if (num > maxAmount) {
-                        maxAmount = num;
-                        amount = extractedAmount;
-                    }
-                } catch (NumberFormatException e) {
-                    // Skip
-                }
-            }
-        }
-        
-        if (!amount.isEmpty()) {
-            android.util.Log.d("ImportFragment", "Amount found in bottom section: " + amount);
-            return amount;
-        }
-        
-        // 3. Last resort: Find largest number in entire receipt
-        for (TextLine line : lines) {
-            String extractedAmount = extractNumberFromLine(line.text);
-            if (!extractedAmount.isEmpty()) {
-                try {
-                    double num = Double.parseDouble(extractedAmount);
-                    if (num > maxAmount) {
-                        maxAmount = num;
-                        amount = extractedAmount;
-                    }
-                } catch (NumberFormatException e) {
-                    // Skip
-                }
-            }
-        }
-        
-        android.util.Log.d("ImportFragment", "Amount found (largest overall): " + amount);
-        return amount;
-    }
-    
-    /**
-     * Extract number from a line of text
-     */
-    private String extractNumberFromLine(String text) {
-        // Pattern to match numbers with optional decimal point and thousands separator
-        // Supports: 1000, 1,000, 1.000, 1000.50, 1,000.50
-        Pattern pattern = Pattern.compile("(\\d{1,3}(?:[,.]\\d{3})*(?:[.,]\\d{2})?)");
-        Matcher matcher = pattern.matcher(text);
-        
-        double maxValue = 0;
-        String maxNumber = "";
-        
-        while (matcher.find()) {
-            String numStr = matcher.group(1);
-            // Normalize: remove thousands separators, keep only last decimal point
-            String normalized = numStr.replaceAll("[,.](?=\\d{3})", "").replace(",", ".");
-            
-            try {
-                double value = Double.parseDouble(normalized);
-                if (value > maxValue) {
-                    maxValue = value;
-                    maxNumber = normalized.replace(".", "");
-                }
-            } catch (NumberFormatException e) {
-                // Skip invalid numbers
-            }
-        }
-        
-        return maxNumber;
-    }
-    
-    /**
-     * Extract date from receipt lines
-     */
-    private String extractDateAdvanced(List<TextLine> lines) {
-        // Date is usually in top 30% of receipt
-        int topThreshold = Math.min(lines.size(), (int) (lines.size() * 0.3));
-        
-        // Numeric date patterns
-        Pattern[] numericDatePatterns = {
-            Pattern.compile("(\\d{1,2}[/-]\\d{1,2}[/-]\\d{2,4})"),
-            Pattern.compile("(\\d{1,2}\\s+[/-]\\s+\\d{1,2}\\s+[/-]\\s+\\d{2,4})"),
-            Pattern.compile("(\\d{2,4}[/-]\\d{1,2}[/-]\\d{1,2})")
-        };
-        
-        // Vietnamese text date pattern: "Ngày 18 tháng 09 năm 2025"
-        Pattern vietnameseDatePattern = Pattern.compile(
-            "ngày\\s+(\\d{1,2})\\s+tháng\\s+(\\d{1,2})\\s+n[aă]m\\s+(\\d{4})",
-            Pattern.CASE_INSENSITIVE
-        );
-        
-        // English text date patterns: "18 September 2025", "September 18, 2025"
-        Pattern[] englishDatePatterns = {
-            Pattern.compile("(\\d{1,2})\\s+(january|february|march|april|may|june|july|august|september|october|november|december)\\s+(\\d{4})", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("(january|february|march|april|may|june|july|august|september|october|november|december)\\s+(\\d{1,2}),?\\s+(\\d{4})", Pattern.CASE_INSENSITIVE)
-        };
-        
-        // Search in top section first
-        for (int i = 0; i < topThreshold; i++) {
-            String lineText = lines.get(i).text;
-            
-            // Try Vietnamese text date
-            Matcher vietnameseMatcher = vietnameseDatePattern.matcher(lineText);
-            if (vietnameseMatcher.find()) {
-                String day = vietnameseMatcher.group(1);
-                String month = vietnameseMatcher.group(2);
-                String year = vietnameseMatcher.group(3);
-                String date = day + "/" + month + "/" + year;
-                android.util.Log.d("ImportFragment", "Vietnamese date found in top section: " + date);
-                parseAndSetDate(date);
-                return date;
-            }
-            
-            // Try English text date patterns
-            for (Pattern pattern : englishDatePatterns) {
-                Matcher matcher = pattern.matcher(lineText);
-                if (matcher.find()) {
-                    String date = matcher.group(0);
-                    android.util.Log.d("ImportFragment", "English text date found in top section: " + date);
-                    parseAndSetDateText(date);
-                    return date;
-                }
-            }
-            
-            // Try numeric date patterns
-            for (Pattern pattern : numericDatePatterns) {
-                Matcher matcher = pattern.matcher(lineText);
-                if (matcher.find()) {
-                    String date = matcher.group(1).replaceAll("\\s+", "");
-                    android.util.Log.d("ImportFragment", "Numeric date found in top section: " + date);
-                    parseAndSetDate(date);
-                    return date;
-                }
-            }
-        }
-        
-        // Search entire receipt if not found in top
-        for (TextLine line : lines) {
-            String lineText = line.text;
-            
-            // Try Vietnamese text date
-            Matcher vietnameseMatcher = vietnameseDatePattern.matcher(lineText);
-            if (vietnameseMatcher.find()) {
-                String day = vietnameseMatcher.group(1);
-                String month = vietnameseMatcher.group(2);
-                String year = vietnameseMatcher.group(3);
-                String date = day + "/" + month + "/" + year;
-                android.util.Log.d("ImportFragment", "Vietnamese date found: " + date);
-                parseAndSetDate(date);
-                return date;
-            }
-            
-            // Try English text date patterns
-            for (Pattern pattern : englishDatePatterns) {
-                Matcher matcher = pattern.matcher(lineText);
-                if (matcher.find()) {
-                    String date = matcher.group(0);
-                    android.util.Log.d("ImportFragment", "English text date found: " + date);
-                    parseAndSetDateText(date);
-                    return date;
-                }
-            }
-            
-            // Try numeric date patterns
-            for (Pattern pattern : numericDatePatterns) {
-                Matcher matcher = pattern.matcher(lineText);
-                if (matcher.find()) {
-                    String date = matcher.group(1).replaceAll("\\s+", "");
-                    android.util.Log.d("ImportFragment", "Numeric date found: " + date);
-                    parseAndSetDate(date);
-                    return date;
-                }
-            }
-        }
-        
-        return "";
-    }
-    
-    /**
-     * Extract category from receipt content
-     */
-    private String extractCategoryAdvanced(List<TextLine> lines) {
-        // Combine all text for category detection
-        StringBuilder fullText = new StringBuilder();
-        for (TextLine line : lines) {
-            fullText.append(line.text.toLowerCase()).append(" ");
-        }
-        
-        String text = fullText.toString();
-        return extractCategory(text);
-    }
-    
-    
-    /**
-     * Extract category from text, defaults to "Others" if not found
-     */
-    private String extractCategory(String text) {
-        String textLower = text.toLowerCase();
-        
-        // Food category - Vietnamese and English keywords
-        if (textLower.contains("food") || textLower.contains("ăn") || 
-            textLower.contains("thức ăn") || textLower.contains("đồ ăn") ||
-            textLower.contains("nhà hàng") || textLower.contains("restaurant") ||
-            textLower.contains("quán ăn") || textLower.contains("cafe") ||
-            textLower.contains("cà phê")) {
-            return "Food";
-        }
-        
-        // Transport category
-        if (textLower.contains("transport") || textLower.contains("xe") || 
-            textLower.contains("đi lại") || textLower.contains("taxi") ||
-            textLower.contains("grab") || textLower.contains("xe buýt") ||
-            textLower.contains("bus") || textLower.contains("xăng") ||
-            textLower.contains("gas") || textLower.contains("fuel")) {
-            return "Transport";
-        }
-        
-        // Home category
-        if (textLower.contains("home") || textLower.contains("nhà") || 
-            textLower.contains("thuê nhà") || textLower.contains("rent") ||
-            textLower.contains("điện") || textLower.contains("nước") ||
-            textLower.contains("electric") || textLower.contains("water")) {
-            return "Home";
-        }
-        
-        // Entertainment category
-        if (textLower.contains("entertainment") || textLower.contains("giải trí") ||
-            textLower.contains("phim") || textLower.contains("movie") ||
-            textLower.contains("game") || textLower.contains("du lịch") ||
-            textLower.contains("travel")) {
-            return "Entertainment";
-        }
-        
-        // Relationship category
-        if (textLower.contains("relationship") || textLower.contains("tình cảm") ||
-            textLower.contains("gift") || textLower.contains("quà") ||
-            textLower.contains("tặng")) {
-            return "Relationship";
-        }
-        
-        // Salary category (income)
-        if (textLower.contains("salary") || textLower.contains("lương") ||
-            textLower.contains("wage") || textLower.contains("pay")) {
-            return "Salary";
-        }
-        
-        // Business category (income)
-        if (textLower.contains("business") || textLower.contains("kinh doanh") ||
-            textLower.contains("bán hàng") || textLower.contains("sales")) {
-            return "Business";
-        }
-        
-        // Gifts category (income)
-        if (textLower.contains("gifts") || textLower.contains("quà tặng") ||
-            textLower.contains("bonus") || textLower.contains("thưởng")) {
-            return "Gifts";
-        }
-        
-        // Default to Others if no category found
-        android.util.Log.d("ImportFragment", "No specific category found, using Others");
-        return "Others";
-    }
 
     /**
-     * Parse numeric date string and set selectedDate
+     * Extract transaction data from OCR text
+     */
+    private void handleExtractedText(String text) {
+        String type = "";
+        String category = "";
+        String date = "";
+        String amount = "";
+
+        // Làm sạch text OCR
+        String cleanedText = text.replaceAll("[^\\dA-Za-zÀ-ỹ\\s/\\-.,]", " ").toLowerCase(Locale.ROOT);
+        android.util.Log.d("OCR_TEXT", "Raw: " + text);
+        android.util.Log.d("OCR_TEXT", "Cleaned: " + cleanedText);
+
+        // 1️⃣ Nhận diện loại giao dịch
+        if (cleanedText.contains("chi") || cleanedText.contains("expense")) {
+            type = "expense";
+        } else if (cleanedText.contains("thu") || cleanedText.contains("income")) {
+            type = "income";
+        }
+
+        // 2️⃣ Nhận diện số tiền (ưu tiên số lớn nhất)
+        // 2️⃣ Nhận diện số tiền chính xác hơn (tìm số dài nhất, bỏ dấu và VND)
+        Pattern amountPattern = Pattern.compile("(\\d{3,}(?:[.,]\\d{3,})*)");
+        Matcher matcher = amountPattern.matcher(text.replaceAll("[^0-9.,]", " "));
+        String longestNum = "";
+        while (matcher.find()) {
+            String numStr = matcher.group(1);
+            if (numStr.length() > longestNum.length()) {
+                longestNum = numStr;
+            }
+        }
+
+        if (!longestNum.isEmpty()) {
+            // Xóa dấu chấm, dấu phẩy và ký tự tiền tệ
+            String cleaned = longestNum.replaceAll("[.,]", "").replaceAll("[^0-9]", "");
+            try {
+                long value = Long.parseLong(cleaned);
+                amount = String.valueOf(value);
+            } catch (NumberFormatException ignored) {}
+        }
+
+
+        // 3️⃣ Nhận diện ngày
+        Pattern datePattern = Pattern.compile("(\\d{1,2}[\\-/]\\d{1,2}[\\-/]\\d{2,4})");
+        Matcher dateMatcher = datePattern.matcher(text);
+        if (dateMatcher.find()) {
+            date = dateMatcher.group(1);
+            parseAndSetDate(date);
+        }
+
+        // 4️⃣ Nhận diện danh mục
+        if (cleanedText.contains("ăn") || cleanedText.contains("food")) {
+            category = "Food";
+        } else if (cleanedText.contains("xe") || cleanedText.contains("transport")) {
+            category = "Transport";
+        } else if (cleanedText.contains("nhà") || cleanedText.contains("home")) {
+            category = "Home";
+        } else if (cleanedText.contains("giải trí") || cleanedText.contains("entertainment")) {
+            category = "Entertainment";
+        } else if (cleanedText.contains("lương") || cleanedText.contains("salary")) {
+            category = "Salary";
+        } else if (cleanedText.contains("kinh doanh") || cleanedText.contains("business")) {
+            category = "Business";
+        } else {
+            category = "Others";
+        }
+
+        // ✅ Gọi hàm hiển thị confirm dialog
+        fillFormFromOCR(type, amount, category, date);
+    }
+
+
+    /**
+     * Parse date string and set selectedDate
      */
     private void parseAndSetDate(String dateString) {
         try {
             SimpleDateFormat sdf;
             if (dateString.contains("/")) {
                 sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-            } else if (dateString.contains("-")) {
-                sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
             } else {
-                android.util.Log.e("ImportFragment", "Unknown date format: " + dateString);
-                return;
+                sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
             }
-            
+
             selectedDate.setTime(sdf.parse(dateString));
             updateDateDisplay();
         } catch (Exception e) {
             android.util.Log.e("ImportFragment", "Error parsing date: " + dateString, e);
-        }
-    }
-    
-    /**
-     * Parse English text date string and set selectedDate
-     * Supports formats like:
-     * - "18 September 2025"
-     * - "September 18, 2025"
-     */
-    private void parseAndSetDateText(String dateString) {
-        try {
-            SimpleDateFormat sdf;
-            
-            // Determine which format based on pattern
-            if (dateString.matches("^\\d{1,2}\\s+\\w+\\s+\\d{4}$")) {
-                // Format: "18 September 2025"
-                sdf = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
-            } else if (dateString.matches("^\\w+\\s+\\d{1,2},?\\s+\\d{4}$")) {
-                // Format: "September 18, 2025" or "September 18 2025"
-                sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.ENGLISH);
-            } else {
-                android.util.Log.e("ImportFragment", "Unknown text date format: " + dateString);
-                return;
-            }
-            
-            // Remove extra comma if present
-            String cleanedDate = dateString.replace(",", " ").replaceAll("\\s+", " ").trim();
-            if (sdf.toPattern().contains(",")) {
-                cleanedDate = dateString.trim();
-            }
-            
-            selectedDate.setTime(sdf.parse(cleanedDate));
-            updateDateDisplay();
-            android.util.Log.d("ImportFragment", "Successfully parsed text date: " + dateString);
-        } catch (Exception e) {
-            android.util.Log.e("ImportFragment", "Error parsing text date: " + dateString, e);
         }
     }
 
@@ -1140,27 +754,11 @@ public class ImportFragment extends Fragment {
     private void fillFormFromOCR(String type, String amount, String categoryName, String date) {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> {
-                // Don't change transaction type, keep current selection
-                
-                // Set amount
-                if (!amount.isEmpty()) {
-                    amountInput.setText(amount);
-                }
-                
-                // Set category by name (always set, defaults to Others)
-                findAndSetCategory(categoryName);
-
-                parseAndSetDate(date);
-                
-                // Show extracted data to user
-                android.util.Log.d("data","Dữ liệu đã được trích xuất:\n" +
-                        "Số tiền: " + (amount.isEmpty() ? "Chưa xác định" : amount) + "\n" +
-                        "Danh mục: " + categoryName);
-                        
+                showOCRConfirmDialog(type, amount, categoryName, date);
             });
         }
     }
-    
+
     /**
      * Find and set category by name
      */
@@ -1169,13 +767,13 @@ public class ImportFragment extends Fragment {
             try {
                 AppDatabase db = AppDatabase.getInstance(requireContext());
                 List<Category> categories;
-                
+
                 if (selectedType.equals("expense")) {
                     categories = db.categoryDao().getAllExpenseCategories();
                 } else {
                     categories = db.categoryDao().getAllIncomeCategories();
                 }
-                
+
                 // Find matching category
                 Category matchedCategory = null;
                 for (Category cat : categories) {
@@ -1184,7 +782,7 @@ public class ImportFragment extends Fragment {
                         break;
                     }
                 }
-                
+
                 if (matchedCategory != null) {
                     Category finalCategory = matchedCategory;
                     if (getActivity() != null) {
@@ -1200,4 +798,374 @@ public class ImportFragment extends Fragment {
             }
         }).start();
     }
+    /**
+     * Hiển thị hộp xác nhận trước khi lưu dữ liệu OCR vào CSDL
+     */
+    private void showOCRConfirmDialog(String type, String amount, String categoryName, String date) {
+        if (getActivity() == null) return;
+
+        Dialog dialog = new Dialog(requireContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_ocr_confirm);
+
+        TextView tvType = dialog.findViewById(R.id.tvType);
+        TextView tvAmount = dialog.findViewById(R.id.tvAmount);
+        TextView tvCategory = dialog.findViewById(R.id.tvCategory);
+        TextView tvDate = dialog.findViewById(R.id.tvDate);
+        EditText etNote = dialog.findViewById(R.id.etNote);
+        Button btnConfirm = dialog.findViewById(R.id.btnConfirm);
+        Button btnCancel = dialog.findViewById(R.id.btnCancel);
+
+        // Gán dữ liệu OCR vào giao diện
+        tvType.setText(type.equals("expense") ? "Expense" : "Income");
+        tvAmount.setText(amount + " VND");
+        tvCategory.setText(categoryName);
+        tvDate.setText(date);
+
+        // Nút hủy
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        // Nút xác nhận
+        btnConfirm.setOnClickListener(v -> {
+            dialog.dismiss();
+
+            // Gán dữ liệu vào form chính
+            amountInput.setText(amount);
+            notesInput.setText(etNote.getText().toString());
+            selectedType = type;
+            selectTransactionType(type);
+            loadCategoriesForType(type);
+            findAndSetCategory(categoryName);
+            parseAndSetDate(date);
+
+            // Lưu vào database
+            saveTransactionWithWallet();
+        });
+
+        dialog.show();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+    }
+    // ==================== VOICE INPUT METHODS ====================
+
+    /**
+     * Setup Voice button
+     */
+    private void setupVoiceButton() {
+        if (btnVoice != null) {
+            btnVoice.setOnClickListener(v -> startVoiceInput());
+        }
+    }
+
+    /**
+     * Start voice recognition intent
+     */
+    private void startVoiceInput() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_RECORD_AUDIO);
+            return;
+        }
+
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VN");
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Nói thông tin chi tiêu...");
+
+        try {
+            startActivityForResult(intent, REQUEST_SPEECH_INPUT);
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "Không thể khởi động trình nhận giọng nói!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Nhận kết quả giọng nói
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_SPEECH_INPUT && resultCode == requireActivity().RESULT_OK && data != null) {
+            ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            if (results != null && !results.isEmpty()) {
+                String spokenText = results.get(0);
+                processVoiceInput(spokenText);
+            }
+        }
+    }
+
+    /**
+     * Phân tích text nhận được từ giọng nói
+     */
+    /**
+     * Phân tích text nhận được từ giọng nói và mở dialog xác nhận
+     */
+    /**
+     * Phân tích text nhận được từ giọng nói và mở dialog xác nhận
+     */
+    /**
+     * Phân tích text nhận được từ giọng nói
+     */
+    private void processVoiceInput(String text) {
+        String normalized = text.toLowerCase(Locale.ROOT)
+                .replaceAll("\\s+", " ")
+                .trim();
+
+        // ========== 1️⃣ Nhận dạng loại giao dịch ==========
+        String type = "expense"; // Mặc định là chi tiêu
+        if (normalized.contains("thu nhập") || normalized.contains("nhận") ||
+                normalized.contains("lương") || normalized.contains("được") ||
+                normalized.contains("income")) {
+            type = "income";
+        } else if (normalized.contains("chi") || normalized.contains("mua") ||
+                normalized.contains("trả") || normalized.contains("expense")) {
+            type = "expense";
+        }
+
+        // ========== 2️⃣ Nhận dạng số tiền ==========
+        long amount = 0L;
+
+        Matcher mix = Pattern.compile("(\\d+)\\s*triệu.*?(\\d+)\\s*(nghìn|ngàn)").matcher(normalized);
+        if (mix.find()) {
+            long trieu = Long.parseLong(mix.group(1));
+            long nghin = Long.parseLong(mix.group(2));
+            amount = trieu * 1_000_000 + nghin * 1_000;
+        } else if (normalized.contains("triệu")) {
+            Matcher m = Pattern.compile("(\\d+(?:[.,]\\d+)?)\\s*triệu").matcher(normalized);
+            if (m.find()) {
+                double num = Double.parseDouble(m.group(1).replace(",", "."));
+                amount = (long) (num * 1_000_000);
+            }
+        } else if (normalized.contains("nghìn") || normalized.contains("ngàn")) {
+            Matcher m = Pattern.compile("(\\d+(?:[.,]\\d+)?)\\s*(nghìn|ngàn)").matcher(normalized);
+            if (m.find()) {
+                double num = Double.parseDouble(m.group(1).replace(",", "."));
+                amount = (long) (num * 1_000);
+            }
+        } else {
+            Matcher m = Pattern.compile("(\\d{1,3}(?:[.,]\\d{3})+|\\d+)").matcher(normalized);
+            if (m.find()) {
+                String numStr = m.group(1).replaceAll("[^\\d]", "");
+                try {
+                    amount = Long.parseLong(numStr);
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+
+        // ========== 3️⃣ Nhận dạng danh mục ==========
+        String category = "Others";
+        if (type.equals("expense")) {
+            if (normalized.contains("ăn") || normalized.contains("uống"))
+                category = "Food";
+            else if (normalized.contains("xăng") || normalized.contains("đi lại"))
+                category = "Transport";
+            else if (normalized.contains("nhà"))
+                category = "Home";
+            else if (normalized.contains("chơi") || normalized.contains("phim"))
+                category = "Entertainment";
+            else if (normalized.contains("quà") || normalized.contains("hoa"))
+                category = "Relationship";
+        } else { // income
+            if (normalized.contains("lương") || normalized.contains("salary"))
+                category = "Salary";
+            else if (normalized.contains("kinh doanh") || normalized.contains("bán"))
+                category = "Business";
+            else if (normalized.contains("thưởng") || normalized.contains("tặng"))
+                category = "Gifts";
+            else if (normalized.contains("khác"))
+                category="Others";
+        }
+
+        // ========== 4️⃣ Nhận dạng ngày ==========
+        String date = "";
+        Matcher d1 = Pattern.compile("(\\d{1,2}[\\-/]\\d{1,2}[\\-/]\\d{2,4})").matcher(normalized);
+        if (d1.find()) {
+            date = d1.group(1);
+        } else {
+            Matcher d2 = Pattern.compile("(\\d{1,2})\\s*tháng\\s*(\\d{1,2})(?:\\s*năm\\s*(\\d{4}))?").matcher(normalized);
+            if (d2.find()) {
+                String day = d2.group(1);
+                String month = d2.group(2);
+                String year = (d2.group(3) != null)
+                        ? d2.group(3)
+                        : String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+                date = day + "/" + month + "/" + year;
+            }
+        }
+
+        // ========== 5️⃣ Hiển thị dialog xác nhận ==========
+        final String amountStr = (amount > 0) ? String.valueOf(amount) : "";
+        final String finalCategory = category;
+        final String finalDate = date;
+        final String finalType = type;
+
+        requireActivity().runOnUiThread(() -> {
+            showVoiceConfirmDialog(finalType, amountStr, finalCategory, finalDate);
+        });
+    }
+
+
+    private void showVoiceConfirmDialog(String type, String amount, String categoryName, String date) {
+        if (getActivity() == null) return;
+
+        Dialog dialog = new Dialog(requireContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_ocr_confirm);
+
+        TextView tvType = dialog.findViewById(R.id.tvType);
+        TextView tvAmount = dialog.findViewById(R.id.tvAmount);
+        TextView tvCategory = dialog.findViewById(R.id.tvCategory);
+        TextView tvDate = dialog.findViewById(R.id.tvDate);
+        Button btnConfirm = dialog.findViewById(R.id.btnConfirm);
+        Button btnCancel = dialog.findViewById(R.id.btnCancel);
+
+        // 🔹 Format số tiền đẹp
+        String formattedAmount = "Chưa nhận diện được";
+        if (!amount.isEmpty()) {
+            try {
+                long amt = Long.parseLong(amount);
+                formattedAmount = String.format("%,d VND", amt);
+            } catch (Exception e) {
+                formattedAmount = amount + " VND";
+            }
+        }
+
+        // 🔹 Hiển thị dữ liệu
+        tvType.setText(type.equals("income") ? "Income" : "Expense");
+        tvAmount.setText(formattedAmount);
+        tvCategory.setText(categoryName);
+        tvDate.setText(date.isEmpty() ? "Không có ngày" : date);
+
+        // ❌ Nút Cancel
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        // ✅ Nút Confirm
+        btnConfirm.setOnClickListener(v -> {
+            dialog.dismiss();
+
+            // 1️⃣ Gán dữ liệu vào các biến chính
+            selectedType = type;
+            selectTransactionType(type);
+            loadCategoriesForType(type);
+            findAndSetCategory(categoryName);
+            parseAndSetDate(date);
+
+            // 2️⃣ Tạo transaction và lưu luôn vào database
+            new Thread(() -> {
+                try {
+                    AppDatabase db = AppDatabase.getInstance(requireContext());
+
+                    // Lấy ví hiện tại (hoặc ví đầu tiên)
+                    int walletId = MainActivity.getSelectedWalletId();
+                    if (walletId == -1) {
+                        var wallets = db.walletDao().getActiveWalletsByUserId(MainActivity.getCurrentUserId());
+                        if (!wallets.isEmpty()) walletId = wallets.get(0).getId();
+                        else {
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() ->
+                                        Toast.makeText(requireContext(), "Bạn cần tạo ví trước!", Toast.LENGTH_SHORT).show());
+                            }
+                            return;
+                        }
+                    }
+
+                    // 3️⃣ Parse ngày và số tiền
+                    double money = 0;
+                    try { money = Double.parseDouble(amount); } catch (Exception ignored) {}
+                    long timeMillis = System.currentTimeMillis();
+                    try {
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        timeMillis = sdf.parse(date).getTime();
+                    } catch (Exception ignored) {}
+
+                    // 4️⃣ Tìm danh mục
+                    Category matched = null;
+                    List<Category> list = type.equals("income")
+                            ? db.categoryDao().getAllIncomeCategories()
+                            : db.categoryDao().getAllExpenseCategories();
+
+                    for (Category c : list) {
+                        if (c.getName().equalsIgnoreCase(categoryName)) {
+                            matched = c;
+                            break;
+                        }
+                    }
+
+                    if (matched == null && !list.isEmpty()) matched = list.get(0);
+
+                    // 5️⃣ Tạo Transaction mới
+                    Transaction t = new Transaction();
+                    t.setWalletId(walletId);
+                    t.setUserId(MainActivity.getCurrentUserId());
+                    t.setType(type);
+                    t.setAmount(money);
+                    t.setCategoryId(matched != null ? matched.getId() : -1);
+                    t.setDescription(""); // không cần note
+                    t.setCreatedAt(timeMillis);
+                    t.setUpdatedAt(System.currentTimeMillis());
+                    t.setRecurring(false);
+
+                    long id = db.transactionDao().insert(t);
+
+                    // 6️⃣ Cập nhật số dư ví
+                    com.example.mymoney.database.entity.Wallet wallet =
+                            db.walletDao().getWalletById(walletId);
+                    if (wallet != null) {
+                        double newBalance = wallet.getBalance() +
+                                (type.equals("income") ? money : -money);
+                        wallet.setBalance(newBalance);
+                        db.walletDao().update(wallet);
+                    }
+
+                    // 7️⃣ Thông báo thành công
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> {
+                            Toast.makeText(requireContext(),
+                                    "Đã lưu giao dịch " + (type.equals("income") ? "thu nhập" : "chi tiêu") + " thành công!",
+                                    Toast.LENGTH_SHORT).show();
+
+                            // Làm mới dữ liệu ở Home / History
+                            refreshHomeFragment();
+                        });
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() ->
+                                Toast.makeText(requireContext(), "Lỗi khi lưu dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    }
+                }
+            }).start();
+        });
+
+        dialog.show();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+    }
+
+
+    /**
+     * Hàm tách số từ chuỗi (dùng cho nhận diện giọng nói)
+     */
+    private int extractNumber(String text) {
+        text = text.replaceAll("[^0-9]", " ");
+        String[] parts = text.trim().split("\\s+");
+        if (parts.length > 0) {
+            try {
+                return Integer.parseInt(parts[0]);
+            } catch (NumberFormatException ignored) {}
+        }
+        return 0;
+    }
+
+
+
+
 }
