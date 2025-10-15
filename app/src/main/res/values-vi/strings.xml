@@ -1,0 +1,113 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">MyMoney</string>
+    <string name="total_balance">Tổng số dư</string>
+    <string name="expenses">Chi tiêu</string>
+    <string name="incomes">Thu nhập</string>
+    <string name="food">Ăn uống</string>
+    <string name="medicine">Thuốc men</string>
+    <string name="clothing">Quần áo</string>
+    <string name="airline_ticket">Vé máy bay</string>
+    <string name="taxi">Taxi</string>
+    <string name="balance_amount">5.890.000 VNĐ</string>
+    <string name="date">02/09/2025</string>
+    <string name="expenses_title">Chi tiêu:</string>
+    <string name="home">Trang chủ</string>
+    <string name="transactions">Giao dịch</string>
+    <string name="statistics">Thống kê</string>
+    <string name="ai_chat">Trợ lý AI</string>
+    <string name="search">Tìm kiếm</string>
+    <string name="study">Học tập</string>
+    <string name="work">Công việc</string>
+    <string name="pet">Thú cưng</string>
+    <string name="travel">Du lịch</string>
+    <string name="learning_english">Học tiếng Anh</string>
+    <string name="fastfood">Đồ ăn nhanh</string>
+    <string name="salary">Lương</string>
+    <string name="buy_food">Mua đồ ăn</string>
+    <string name="ot">Làm thêm</string>
+    <string name="filter">Lọc</string>
+    <string name="top_expenses">Chi tiêu hàng đầu:</string>
+    <string name="entertainment">Giải trí</string>
+    <string name="date_range">01/08/2025 - 31/08/2025</string>
+    <string name="year_2025">2025</string>
+    <string name="export">Xuất dữ liệu</string>
+    <string name="jan">Th1</string>
+    <string name="feb">Th2</string>
+    <string name="mar">Th3</string>
+    <string name="apr">Th4</string>
+    <string name="may">Th5</string>
+    <string name="jun">Th6</string>
+    <string name="jul">Th7</string>
+    <string name="aug">Th8</string>
+    <string name="sep">Th9</string>
+    <string name="oct">Th10</string>
+    <string name="nov">Th11</string>
+    <string name="dec">Th12</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_history">Lịch sử</string>
+    <string name="nav_statistics">Thống kê</string>
+
+    <!-- Categories -->
+    <string name="category_home">Trang chủ</string>
+    <string name="category_entertainment">Giải trí</string>
+    <string name="category_study">Học tập</string>
+    <string name="category_travel">Du lịch</string>
+    <string name="category_food">Ăn uống</string>
+    <string name="category_pet">Thú cưng</string>
+
+    <!-- Import Screen -->
+    <string name="import_title">Nhập giao dịch</string>
+    <string name="expense_type">Chi tiêu</string>
+    <string name="income_type">Thu nhập</string>
+    <string name="enter_amount">Nhập số tiền</string>
+    <string name="category_label">Danh mục*</string>
+    <string name="transaction_date">Ngày giao dịch</string>
+
+    <!-- AI Chat -->
+    <string name="ai_chat_title">Trợ lý AI</string>
+    <string name="good_morning">Chào buổi sáng, quản lý</string>
+    <string name="suggested_question_1">Tôi nên chi tiêu gì?</string>
+    <string name="suggested_question_2">Nhận xét chi tiêu tháng qua.</string>
+    <string name="chat_input_hint">Nhập nội dung...</string>
+    <string name="mymoney">Quản lý chi tiêu</string>
+    <string name="settings">Cài đặt</string>
+    <string name="wallet">Ví</string>
+    <string name="pie_chart_description">Biểu đồ phân bổ chi tiêu</string>
+
+    <!-- Wallet Related -->
+    <string name="new_wallet">Ví mới</string>
+    <string name="add_wallet">Thêm ví</string>
+    <string name="cash">Tiền mặt</string>
+    <string name="bank_account">Tài khoản ngân hàng</string>
+    <string name="virtual_account">Ví điện tử</string>
+    <string name="wallet_info">Thông tin ví</string>
+    <string name="wallet_name">Tên ví</string>
+    <string name="balance">Số dư</string>
+    <string name="currency">Tiền tệ</string>
+    <string name="note">Ghi chú</string>
+    <string name="enter_account_name">Nhập tên ví</string>
+    <string name="enter_amount2">Nhập số tiền</string>
+    <string name="select_currency">Chọn loại tiền</string>
+    <string name="write_note_here">Viết ghi chú tại đây</string>
+
+    <!-- Import Transaction -->
+    <string name="repeat">Lặp lại</string>
+    <string name="repeat_yes">Có</string>
+    <string name="repeat_no">Không</string>
+    <string name="recurring_cycle">Chu kỳ</string>
+    <string name="monthly">Hàng tháng</string>
+    <string name="weekly">Hàng tuần</string>
+    <string name="yearly">Hàng năm</string>
+    <string name="daily">Hàng ngày</string>
+    <string name="notes">Ghi chú</string>
+    <string name="save">Lưu</string>
+    <string name="enter_notes">Nhập ghi chú...</string>
+
+    <!-- Transaction -->
+    <string name="transaction_icon">Biểu tượng giao dịch</string>
+    <string name="select_date_range">Chọn khoảng thời gian</string>
+    <string name="select_year" >Chọn năm</string>
+    <string name="logout_success">Đăng xuất thành công</string>
+</resources>

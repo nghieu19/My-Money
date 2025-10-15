@@ -89,7 +89,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp"
-            android:background="#E8F5F1"
+            android:background="@color/panel_background"
             android:minWidth="200dp">
 
             <!-- Dynamic Wallet List Container -->
@@ -154,7 +154,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp"
-            android:background="#E8F5F1"
+            android:background="@color/panel_background"
             android:minWidth="200dp">
 
             <!-- Account Item -->
@@ -187,8 +187,9 @@
             </LinearLayout>
 
             <!-- Settings Item -->
+            <!-- Themes Item -->
             <LinearLayout
-                android:id="@+id/settings_preferences"
+                android:id="@+id/settings_themes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -200,6 +201,7 @@
                 android:focusable="true">
 
                 <ImageView
+                    android:id="@+id/imgThemeIcon"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_sun"
@@ -209,11 +211,11 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Settings"
+                    android:text="Themes"
                     android:textSize="14sp"
                     android:textColor="@color/text_primary" />
-
             </LinearLayout>
+
 
             <!-- Language Item -->
             <LinearLayout
@@ -232,7 +234,8 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_lan"
-                    android:layout_marginEnd="12dp" />
+                    android:layout_marginEnd="12dp"
+                    app:tint="@null" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -268,7 +271,8 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_account"
-                    android:layout_marginEnd="12dp" />
+                    android:layout_marginEnd="12dp"
+                    app:tint="@null" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -297,7 +301,8 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_logout"
-                    android:layout_marginEnd="12dp" />
+                    android:layout_marginEnd="12dp"
+                    app:tint="@null"/>
 
                 <TextView
                     android:layout_width="0dp"

@@ -65,7 +65,7 @@ public class AddWalletFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+
         initializeViews(view);
         setupListeners();
     }
@@ -78,7 +78,7 @@ public class AddWalletFragment extends Fragment {
             ((MainActivity) getActivity()).hideMainHeaderAndFooter();
         }
     }
-    
+
     @Override
     public void onPause() {
         super.onPause();
@@ -121,14 +121,14 @@ public class AddWalletFragment extends Fragment {
     private void showCurrencyPicker() {
         String[] currencies = {"VND", "USD", "EUR", "GBP", "JPY"};
         int currentIndex = -1;
-        
+
         for (int i = 0; i < currencies.length; i++) {
             if (currencies[i].equals(selectedCurrency)) {
                 currentIndex = i;
                 break;
             }
         }
-        
+
         int nextIndex = (currentIndex + 1) % currencies.length;
         selectedCurrency = currencies[nextIndex];
         tvCurrency.setText(selectedCurrency);
@@ -164,7 +164,7 @@ public class AddWalletFragment extends Fragment {
         if (getContext() != null) {
             // Disable save button to prevent double submission
             btnSave.setEnabled(false);
-            
+
             // Create wallet object
             Wallet wallet = new Wallet();
             wallet.setName(walletName);
@@ -180,23 +180,23 @@ public class AddWalletFragment extends Fragment {
             new Thread(() -> {
                 try {
                     long walletId = db.walletDao().insert(wallet);
-                    
+
                     // Show success message on UI thread
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
                             Toast.makeText(getContext(), "Wallet saved successfully!", Toast.LENGTH_SHORT).show();
                             
                             if (getActivity() != null) {
-                                getActivity().getSupportFragmentManager().popBackStack(null, 
-                                    androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                getActivity().getSupportFragmentManager().popBackStack(null,
+                                        androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
                             }
                         });
                     }
                 } catch (Exception e) {
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "Error saving wallet: " + e.getMessage(), 
-                                Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Error saving wallet: " + e.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
                             btnSave.setEnabled(true);
                         });
                     }

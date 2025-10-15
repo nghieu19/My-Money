@@ -105,7 +105,7 @@ public class HomeFragment extends Fragment {
         // Reload data when fragment becomes visible
         loadWalletData();
     }
-    
+
     private void setupRecyclerView() {
         recentTransactionsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         dailyGroupAdapter = new DailyTransactionGroupAdapter(
@@ -133,15 +133,15 @@ public class HomeFragment extends Fragment {
         );
         recentTransactionsRecyclerView.setAdapter(dailyGroupAdapter);
     }
-    
+
     private void loadWalletData() {
         android.util.Log.d("HomeFragment", "loadWalletData() called - Current user: " + MainActivity.getCurrentUserId() + ", Selected wallet: " + MainActivity.getSelectedWalletId());
-        
+
         new Thread(() -> {
             try {
                 AppDatabase db = AppDatabase.getInstance(requireContext());
                 int walletId = MainActivity.getSelectedWalletId();
-                
+
                 // If no wallet selected, use the first available wallet
                 if (walletId == -1) {
                     List<Wallet> wallets = db.walletDao().getActiveWalletsByUserId(MainActivity.getCurrentUserId());
@@ -152,10 +152,10 @@ public class HomeFragment extends Fragment {
                         android.util.Log.d("HomeFragment", "Auto-selected first wallet: ID " + walletId);
                     }
                 }
-                
+
                 if (walletId != -1) {
                     Wallet wallet = db.walletDao().getWalletById(walletId);
-                    
+
                     // Calculate total expenses and incomes from transactions FOR THIS WALLET
                     double totalExpenses = db.transactionDao().getTotalExpensesByWallet(walletId);
                     double totalIncomes = db.transactionDao().getTotalIncomeByWallet(walletId);
@@ -183,8 +183,8 @@ public class HomeFragment extends Fragment {
                         
                         getActivity().runOnUiThread(() -> {
                             if (finalWallet != null) {
-                                balanceAmount.setText(String.format(Locale.getDefault(), 
-                                    "%,.0f %s", finalWallet.getBalance(), finalWallet.getCurrency()));
+                                balanceAmount.setText(String.format(Locale.getDefault(),
+                                        "%,.0f %s", finalWallet.getBalance(), finalWallet.getCurrency()));
                             } else {
                                 balanceAmount.setText("0 VND");
                             }
@@ -231,7 +231,7 @@ public class HomeFragment extends Fragment {
             }
         }).start();
     }
-    
+
     /**
      * Group transactions by date
      */

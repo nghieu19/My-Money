@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Import Methods -->
+        <!-- 🔹 Import Methods (Camera / Voice / Scan) -->
         <LinearLayout
             android:id="@+id/import_methods"
             android:layout_width="match_parent"
@@ -22,342 +22,337 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Camera -->
-        <LinearLayout
-            android:id="@+id/btnCamera"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="16dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/transaction_item_background"
-            android:clickable="true"
-            android:foreground="?android:attr/selectableItemBackground">
-
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_camera"
-                android:layout_marginBottom="8dp" />
-
-        </LinearLayout>
-
-        <!-- Voice -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="16dp"
-            android:layout_marginHorizontal="8dp"
-            android:background="@drawable/transaction_item_background"
-            android:clickable="true"
-            android:foreground="?android:attr/selectableItemBackground">
-
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_voice"
-                android:layout_marginBottom="8dp" />
-
-        </LinearLayout>
-
-        <!-- Scan -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="16dp"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/transaction_item_background"
-            android:clickable="true"
-            android:foreground="?android:attr/selectableItemBackground">
-
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_scan"
-                android:layout_marginBottom="8dp" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <!-- Transaction Form -->
-    <LinearLayout
-        android:id="@+id/transaction_form"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="24dp"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:background="@drawable/transaction_item_background"
-        app:layout_constraintTop_toBottomOf="@id/import_methods"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <!-- Transaction Type Selector -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="20dp">
-
+            <!-- 📷 Camera -->
             <LinearLayout
-                android:id="@+id/expense_selector"
+                android:id="@+id/btnCamera"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="8dp"
+                android:padding="16dp"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/search_background"
+                android:background="@drawable/transaction_item_background"
                 android:clickable="true"
+                android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Expense"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_primary" />
-
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_camera"
+                    android:layout_marginBottom="8dp"
+                    app:tint="@color/text_primary" />
             </LinearLayout>
 
+            <!-- 🎤 Voice -->
             <LinearLayout
-                android:id="@+id/income_selector"
+                android:id="@+id/btnVoice"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="8dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/search_background"
+                android:padding="16dp"
+                android:layout_marginHorizontal="8dp"
+                android:background="@drawable/transaction_item_background"
                 android:clickable="true"
+                android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Income"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_primary" />
-
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_voice"
+                    android:layout_marginBottom="8dp"
+                    app:tint="@color/text_primary" />
             </LinearLayout>
 
-        </LinearLayout>
-
-        <!-- Amount Input -->
-        <EditText
-            android:id="@+id/amount_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:padding="12dp"
-            android:background="@drawable/search_background"
-            android:hint="Enter amount"
-            android:textSize="14sp"
-            android:textColor="@color/text_primary"
-            android:textColorHint="@color/text_secondary"
-            android:inputType="numberDecimal" />
-
-        <!-- Categories Label -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Category*"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_marginBottom="12dp" />
-
-        <!-- Category Selector Button -->
-        <LinearLayout
-            android:id="@+id/category_selector"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="12dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/search_background"
-            android:clickable="true"
-            android:foreground="?android:attr/selectableItemBackground">
-
-            <ImageView
-                android:id="@+id/category_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_home"
-                android:layout_marginEnd="12dp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/category_text"
+            <!-- 🧾 Scan -->
+            <LinearLayout
+                android:id="@+id/btnScan"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Select Category"
-                android:textSize="14sp"
-                android:textColor="@color/text_primary" />
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="16dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/transaction_item_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground">
 
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@android:drawable/arrow_down_float"
-                app:tint="@color/text_secondary" />
-
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_scan"
+                    android:layout_marginBottom="8dp"
+                    app:tint="@color/text_primary" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Date Selector -->
+        <!-- 🔹 Transaction Form -->
         <LinearLayout
-            android:id="@+id/date_selector"
+            android:id="@+id/transaction_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="12dp"
-            android:background="@drawable/search_background"
-            android:clickable="true"
-            android:foreground="?android:attr/selectableItemBackground">
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:background="@drawable/transaction_item_background"
+            app:layout_constraintTop_toBottomOf="@id/import_methods"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_calendar"
-                android:layout_marginEnd="12dp" />
-
-            <TextView
-                android:id="@+id/date_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Transaction date"
-                android:textSize="14sp"
-                android:textColor="@color/text_primary" />
-
-        </LinearLayout>
-
-        <!-- Repeat Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Repeat"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary" />
-
-            <RadioGroup
-                android:id="@+id/repeat_radio_group"
-                android:layout_width="wrap_content"
+            <!-- Transaction Type -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginStart="16dp">
+                android:gravity="center"
+                android:layout_marginBottom="20dp">
 
-                <RadioButton
-                    android:id="@+id/repeat_yes"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/expense_selector"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
-                    android:textSize="14sp"
-                    android:layout_marginEnd="16dp" />
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/search_background"
+                    android:clickable="true"
+                    android:foreground="?android:attr/selectableItemBackground">
 
-                <RadioButton
-                    android:id="@+id/repeat_no"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Expense"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/income_selector"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="No"
-                    android:textSize="14sp"
-                    android:checked="true" />
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/search_background"
+                    android:clickable="true"
+                    android:foreground="?android:attr/selectableItemBackground">
 
-            </RadioGroup>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Income"
+                        android:textSize="14sp"
+                        android:textColor="@color/text_primary" />
+                </LinearLayout>
+            </LinearLayout>
 
-        </LinearLayout>
+            <!-- Amount -->
+            <EditText
+                android:id="@+id/amount_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:padding="12dp"
+                android:background="@drawable/search_background"
+                android:hint="Enter amount"
+                android:textSize="14sp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:inputType="numberDecimal" />
 
-        <!-- Recurring Cycle Dropdown (Initially Hidden) -->
-        <LinearLayout
-            android:id="@+id/recurring_section"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone"
-            android:layout_marginBottom="16dp">
-
+            <!-- Category -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Recurring cycle"
+                android:text="Category*"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_marginBottom="12dp" />
+
+            <LinearLayout
+                android:id="@+id/category_selector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/search_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:id="@+id/category_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_home"
+                    android:layout_marginEnd="12dp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/category_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Select Category"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@android:drawable/arrow_down_float"
+                    app:tint="@color/text_secondary" />
+            </LinearLayout>
+
+            <!-- Date -->
+            <LinearLayout
+                android:id="@+id/date_selector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="12dp"
+                android:background="@drawable/search_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_calendar"
+                    android:layout_marginEnd="12dp"
+                    app:tint="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/date_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Transaction date"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary" />
+            </LinearLayout>
+
+            <!-- Repeat Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Repeat"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary" />
+
+                <RadioGroup
+                    android:id="@+id/repeat_radio_group"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="16dp">
+
+                    <RadioButton
+                        android:id="@+id/repeat_yes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Yes"
+                        android:textSize="14sp"
+                        android:layout_marginEnd="16dp" />
+
+                    <RadioButton
+                        android:id="@+id/repeat_no"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No"
+                        android:textSize="14sp"
+                        android:checked="true" />
+                </RadioGroup>
+            </LinearLayout>
+
+            <!-- Recurring Section -->
+            <LinearLayout
+                android:id="@+id/recurring_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Recurring cycle"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="8dp" />
+
+                <Spinner
+                    android:id="@+id/recurring_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:background="@drawable/search_background"
+                    android:spinnerMode="dropdown" />
+            </LinearLayout>
+
+            <!-- Notes -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Notes"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
                 android:layout_marginBottom="8dp" />
 
-            <Spinner
-                android:id="@+id/recurring_spinner"
+            <EditText
+                android:id="@+id/notes_input"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:padding="12dp"
                 android:background="@drawable/search_background"
-                android:spinnerMode="dropdown" />
+                android:hint="Enter notes..."
+                android:textSize="14sp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:maxLines="5"
+                android:layout_marginBottom="20dp" />
 
+            <!-- Save -->
+            <Button
+                android:id="@+id/save_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:background="@drawable/button_background"
+                android:padding="14dp" />
         </LinearLayout>
-
-        <!-- Notes Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Notes"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_marginBottom="8dp" />
-
-        <EditText
-            android:id="@+id/notes_input"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:padding="12dp"
-            android:background="@drawable/search_background"
-            android:hint="Enter notes..."
-            android:textSize="14sp"
-            android:textColor="@color/text_primary"
-            android:textColorHint="@color/text_secondary"
-            android:gravity="top|start"
-            android:inputType="textMultiLine"
-            android:maxLines="5"
-            android:layout_marginBottom="20dp" />
-
-        <!-- Save Button -->
-        <Button
-            android:id="@+id/save_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Save"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:background="@drawable/button_background"
-            android:padding="14dp" />
-
-    </LinearLayout>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </ScrollView>

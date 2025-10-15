@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Mymoney" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.MyMoney" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/primary_pink</item>
         <item name="colorPrimaryVariant">@color/light_pink</item>
@@ -13,7 +13,6 @@
         <item name="android:statusBarColor">@color/light_pink</item>
         <item name="android:navigationBarColor">@color/soft_pink</item>
         <item name="android:windowLightStatusBar">true</item>
-    </style>
 
-    <style name="Theme.Mymoney" parent="Base.Theme.Mymoney" />
+    </style>
 </resources>

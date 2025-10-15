@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.example.mymoney.database.AppDatabase;
 import com.example.mymoney.database.entity.User;
@@ -21,6 +22,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
@@ -38,22 +40,37 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            // Check credentials in background thread
+            // Kiểm tra đăng nhập trong thread riêng
             new Thread(() -> {
                 AppDatabase db = AppDatabase.getInstance(this);
                 User user = db.userDao().login(username, password);
-                
+
                 runOnUiThread(() -> {
                     if (user != null) {
-                        // Save user session
-                        SharedPreferences prefs = getSharedPreferences("MyMoneyPrefs", MODE_PRIVATE);
-                        prefs.edit()
-                            .putInt("userId", user.getId())
-                            .putString("username", user.getUsername())
-                            .putBoolean("isLoggedIn", true)
-                            .apply();
-                        
-                        Toast.makeText(this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
+                        // ✅ Lưu thông tin đăng nhập (session)
+                        SharedPreferences session = getSharedPreferences("MyMoneyPrefs", MODE_PRIVATE);
+                        session.edit()
+                                .putInt("userId", user.getId())
+                                .putString("username", user.getUsername())
+                                .putBoolean("isLoggedIn", true)
+                                .apply();
+
+                        // ✅ Lưu thông tin người dùng để hiển thị ở AccountActivity
+                        SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putString("fullName", user.getFullName() == null ? "(not set)" : user.getFullName());
+                        editor.putString("email", user.getEmail() == null ? "(not set)" : user.getEmail());
+                        editor.putString("username", user.getUsername());
+                        editor.putString("gender", user.getGender() == null ? "(not set)" : user.getGender());
+                        editor.putString("phone", user.getPhone() == null ? "(not set)" : user.getPhone());
+                        editor.putString("dob", user.getDob() == null ? "(not set)" : user.getDob());
+                        editor.putString("job", user.getJob() == null ? "(not set)" : user.getJob());
+                        editor.putString("address", user.getAddress() == null ? "(not set)" : user.getAddress());
+                        editor.apply();
+
+                        Toast.makeText(this, "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+
+                        // Chuyển đến MainActivity
                         startActivity(new Intent(this, MainActivity.class));
                         finish();
                     } else {
@@ -63,6 +80,7 @@ public class LoginActivity extends AppCompatActivity {
             }).start();
         });
 
+        // Chuyển đến trang đăng ký
         tvRegister.setOnClickListener(v -> {
             startActivity(new Intent(this, RegisterActivity.class));
         });

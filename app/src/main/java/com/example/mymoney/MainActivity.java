@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_USER_ID = "userId";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
-    
+
     private static int selectedWalletId = -1; //-1 la chua chon vi nao
     private static int currentUserId = 1; // acc default la 1
 
@@ -41,10 +41,10 @@ public class MainActivity extends AppCompatActivity {
     private ImageView btnWallet;
     private ImageView btnSettings;
     private LinearLayout walletListContainer;
-    
+
     private LinearLayout settingsLogin;
     private LinearLayout settingsLogout;
-    
+
     // Header and footer views
     private LinearLayout headerLayout;
     private View headerDivider;
@@ -52,17 +52,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        LocaleHelper.onAttach(this); // ✅ Language support
+        ThemeUtils.applyTheme(this); // ✅ Apply current theme
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main_container);
-        
+
         View mainLayout = findViewById(R.id.main);
         ViewCompat.setOnApplyWindowInsetsListener(mainLayout, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        
+
         fragmentManager = getSupportFragmentManager();
         headerTitle = findViewById(R.id.header_title);
         walletPanel = findViewById(R.id.wallet_panel);
@@ -95,12 +97,7 @@ public class MainActivity extends AppCompatActivity {
         updateCurrentUserId();
         updateSettingsButtonsVisibility();
         loadWalletsFromDatabase();
-        
-
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            android.util.Log.d("MainActivity", "Final safety refresh from onResume()");
-            refreshCurrentFragment();
-        }, 300); // Longer delay to ensure wallet loading completes
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(this::refreshCurrentFragment, 300);
     }
 
     /**
@@ -111,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
         android.util.Log.d("MainActivity", "Current user ID updated to: " + currentUserId);
     }
 
+    // ================= Wallet Setup =================
     private void setupWalletButton() {
         btnWallet.setOnClickListener(v -> {
             loadWalletsFromDatabase();
@@ -122,13 +120,12 @@ public class MainActivity extends AppCompatActivity {
 
         addWalletItem.setOnClickListener(v -> {
             hideWalletPanel();
-            // Don't update title, and header/footer will be hidden by the fragment itself
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             transaction.setCustomAnimations(
-                R.anim.fade_in_up,
-                R.anim.fade_out_down,
-                R.anim.fade_in_up,
-                R.anim.fade_out_down
+                    R.anim.fade_in_up,
+                    R.anim.fade_out_down,
+                    R.anim.fade_in_up,
+                    R.anim.fade_out_down
             );
             transaction.replace(R.id.fragment_container, new NewWalletFragment());
             transaction.addToBackStack(null);
@@ -136,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // ================= Settings Setup =================
     private void setupSettingsButton() {
         btnSettings.setOnClickListener(v -> {
             hideWalletPanel(); // Hide wallet when opening settings
@@ -143,35 +141,56 @@ public class MainActivity extends AppCompatActivity {
             toggleSettingsPanel();
         });
 
-        // Account settings
+        // 🔹 Account settings
         LinearLayout settingsAccount = findViewById(R.id.settings_account);
         settingsAccount.setOnClickListener(v -> {
             hideSettingsPanel();
-            Toast.makeText(this, "Account settings coming soon", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, AccountActivity.class);
+            startActivity(intent);
         });
 
-        // App settings/preferences
-        LinearLayout settingsPreferences = findViewById(R.id.settings_preferences);
-        settingsPreferences.setOnClickListener(v -> {
-            hideSettingsPanel();
-            Toast.makeText(this, "App settings coming soon", Toast.LENGTH_SHORT).show();
+        // 🌗 Theme switch
+        LinearLayout themesLayout = findViewById(R.id.settings_themes);
+        ImageView imgThemeIcon = findViewById(R.id.imgThemeIcon); // Moon/Sun icon
+
+        // Display correct icon when app opens
+        if (ThemeUtils.isDarkMode(this)) {
+            imgThemeIcon.setImageResource(R.drawable.ic_moon);
+        } else {
+            imgThemeIcon.setImageResource(R.drawable.ic_sun);
+        }
+
+        // When user clicks "Themes"
+        themesLayout.setOnClickListener(v -> {
+            boolean isDark = ThemeUtils.isDarkMode(this);
+            ThemeUtils.toggleTheme(this);
+            imgThemeIcon.setImageResource(isDark ? R.drawable.ic_sun : R.drawable.ic_moon);
+            recreate();
         });
 
-        // Language settings
+        // 🌍 Language settings
         LinearLayout settingsLanguage = findViewById(R.id.settings_language);
         settingsLanguage.setOnClickListener(v -> {
             hideSettingsPanel();
-            Toast.makeText(this, "Language settings coming soon", Toast.LENGTH_SHORT).show();
+            String[] languages = {"English", "Tiếng Việt"};
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle("Choose Language")
+                    .setItems(languages, (dialog, which) -> {
+                        String langCode = (which == 0) ? "en" : "vi";
+                        LocaleHelper.setLocale(this, langCode);
+                        recreate();
+                    })
+                    .show();
         });
 
-        // Login button
+        // 🔐 Login button
         settingsLogin.setOnClickListener(v -> {
             hideSettingsPanel();
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
         });
 
-        // Logout button
+        // 🔓 Logout button
         settingsLogout.setOnClickListener(v -> {
             hideSettingsPanel();
             performLogout();
@@ -214,67 +233,69 @@ public class MainActivity extends AppCompatActivity {
      */
     private void performLogout() {
         android.util.Log.d("MainActivity", "Performing logout...");
-        
+
         // Clear session
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         prefs.edit()
-            .remove(KEY_USER_ID)
-            .remove(KEY_USERNAME)
-            .putBoolean(KEY_IS_LOGGED_IN, false)
-            .apply();
-        
+                .remove(KEY_USER_ID)
+                .remove(KEY_USERNAME)
+                .putBoolean(KEY_IS_LOGGED_IN, false)
+                .apply();
+
         // Reset to default user ID
         currentUserId = 1;
         android.util.Log.d("MainActivity", "User ID reset to: " + currentUserId);
-        
+
         // Reset selected wallet
         selectedWalletId = -1;
         android.util.Log.d("MainActivity", "Selected wallet ID reset to: " + selectedWalletId);
-        
+
         // Update UI
         updateSettingsButtonsVisibility();
-        
+
         // Clear wallet panel
         if (walletListContainer != null) {
             walletListContainer.removeAllViews();
         }
-        
+
         // Reload wallets for default user
         loadWalletsFromDatabase();
-        
+
         // Refresh current fragment to show empty/default data with delay to ensure state is updated
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             android.util.Log.d("MainActivity", "Refreshing fragment after logout");
             refreshCurrentFragment();
         }, 200);
-        
+
         Toast.makeText(this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
     }
+
+    // ================= Wallet Loading =================
 
     /**
      * Load wallets from database and populate the wallet panel
      */
     private void loadWalletsFromDatabase() {
         walletListContainer = findViewById(R.id.wallet_list_container);
-        
+
         new Thread(() -> {
             AppDatabase db = AppDatabase.getInstance(this);
             int userId = getLoggedInUserId();
             List<Wallet> wallets = db.walletDao().getActiveWalletsByUserId(userId);
-            
+
             android.util.Log.d("MainActivity", "Loaded " + wallets.size() + " wallets for user ID: " + userId);
             for (Wallet w : wallets) {
                 android.util.Log.d("MainActivity", "  - Wallet: " + w.getName() + " (ID: " + w.getId() + ")");
             }
-            
+
             // Auto-select first wallet if none is selected or if wallet doesn't belong to current user
             boolean needToSelectWallet = false;
             int newSelectedWalletId = selectedWalletId;
-            
+
             if (!wallets.isEmpty()) {
                 // Check if current selected wallet belongs to this user
                 needToSelectWallet = (selectedWalletId == -1);
-                
+
                 if (selectedWalletId != -1) {
                     // Check if the selected wallet belongs to the current user
                     Wallet selectedWallet = db.walletDao().getWalletById(selectedWalletId);
@@ -283,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
                         needToSelectWallet = true;
                     }
                 }
-                
+
                 if (needToSelectWallet) {
                     newSelectedWalletId = wallets.get(0).getId();
                     android.util.Log.d("MainActivity", "Auto-selected first wallet: ID " + newSelectedWalletId + " (" + wallets.get(0).getName() + ")");
@@ -292,21 +313,21 @@ public class MainActivity extends AppCompatActivity {
                 android.util.Log.d("MainActivity", "No wallets available for user " + userId);
                 newSelectedWalletId = -1;
             }
-            
+
             final int finalWalletId = newSelectedWalletId;
             final boolean walletChanged = (selectedWalletId != newSelectedWalletId);
-            
+
             runOnUiThread(() -> {
                 walletListContainer.removeAllViews();
-                
+
                 for (Wallet wallet : wallets) {
                     addWalletItemToPanel(wallet);
                 }
-                
+
                 selectedWalletId = finalWalletId;
-                
+
                 android.util.Log.d("MainActivity", "Wallet items added to panel, selected wallet ID: " + selectedWalletId);
-                
+
                 if (walletChanged) {
                     android.util.Log.d("MainActivity", "Wallet selection changed, triggering fragment refresh");
                     new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
@@ -322,8 +343,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void addWalletItemToPanel(Wallet wallet) {
         View walletItemView = getLayoutInflater()
-            .inflate(R.layout.wallet_item, walletListContainer, false);
-        
+                .inflate(R.layout.wallet_item, walletListContainer, false);
+
         LinearLayout clickableArea = walletItemView.findViewById(R.id.wallet_clickable_area);
         if (clickableArea == null) {
             if (walletItemView instanceof LinearLayout) {
@@ -333,14 +354,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        
+
         ImageView icon = walletItemView.findViewById(R.id.wallet_icon);
         TextView name = walletItemView.findViewById(R.id.wallet_name);
         TextView balance = walletItemView.findViewById(R.id.wallet_balance);
-        
+
         name.setText(wallet.getName());
         balance.setText(String.format("%,.0f %s", wallet.getBalance(), wallet.getCurrency()));
-        
+
         // Set icon based on wallet type
         switch (wallet.getType()) {
             case "cash":
@@ -356,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
                 icon.setImageResource(R.drawable.ic_wallet1);
                 break;
         }
-        
+
         // Set click listener on the clickable area, not the root
         View finalClickableArea = clickableArea != null ? clickableArea : walletItemView;
         finalClickableArea.setOnClickListener(v -> {
@@ -364,29 +385,29 @@ public class MainActivity extends AppCompatActivity {
             hideWalletPanel();
             int oldWalletId = selectedWalletId;
             selectedWalletId = wallet.getId();
-            
+
             android.util.Log.d("MainActivity", "Wallet switched: " + oldWalletId + " -> " + selectedWalletId);
             android.util.Log.d("MainActivity", "Selected wallet: " + wallet.getName());
-            
-            Toast.makeText(this, "Selected: " + wallet.getName(), Toast.LENGTH_SHORT).show();
-            
+
+            Toast.makeText(this, "Chọn ví: " + wallet.getName(), Toast.LENGTH_SHORT).show();
+
             // Refresh current fragment with new wallet data
             refreshCurrentFragment();
         });
-        
+
         walletListContainer.addView(walletItemView);
     }
-    
+
     /**
      * Refresh the current fragment to reflect wallet changes
      */
     private void refreshCurrentFragment() {
         Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_container);
-        
-        android.util.Log.d("MainActivity", "Refreshing fragment: " + 
-            (currentFragment != null ? currentFragment.getClass().getSimpleName() : "null"));
+
+        android.util.Log.d("MainActivity", "Refreshing fragment: " +
+                (currentFragment != null ? currentFragment.getClass().getSimpleName() : "null"));
         android.util.Log.d("MainActivity", "Current user ID: " + currentUserId + ", Selected wallet ID: " + selectedWalletId);
-        
+
         if (currentFragment instanceof HomeFragment) {
             android.util.Log.d("MainActivity", "Calling HomeFragment.refreshData()");
             ((HomeFragment) currentFragment).refreshData();
@@ -396,17 +417,17 @@ public class MainActivity extends AppCompatActivity {
         } else if (currentFragment instanceof StatisticsFragment) {
             android.util.Log.d("MainActivity", "Calling StatisticsFragment.refreshData()");
             ((StatisticsFragment) currentFragment).refreshData();
-        } else {
+        } else if (currentFragment != null) {
             // For other fragments, use detach/attach
             android.util.Log.d("MainActivity", "Using detach/attach for fragment refresh");
-            if (currentFragment != null) {
-                fragmentManager.beginTransaction()
+            fragmentManager.beginTransaction()
                     .detach(currentFragment)
                     .attach(currentFragment)
-                    .commit();
-            }
+                    .commitAllowingStateLoss();
         }
     }
+
+    // ================= Panel Management =================
 
     private void toggleWalletPanel() {
         if (walletPanel.getVisibility() == View.VISIBLE) {
@@ -440,91 +461,98 @@ public class MainActivity extends AppCompatActivity {
         settingsPanel.setVisibility(View.GONE);
     }
 
+    // ================= Navigation =================
+
     private void setupNavigationBar() {
-        LinearLayout navHome = findViewById(R.id.nav_home);
-        LinearLayout navHistory = findViewById(R.id.nav_history);
-        LinearLayout navAIChat = findViewById(R.id.nav_ai_chat);
-        LinearLayout navStatistics = findViewById(R.id.nav_statistics);
+    LinearLayout navHome = findViewById(R.id.nav_home);
+    LinearLayout navHistory = findViewById(R.id.nav_history);
+    LinearLayout navAIChat = findViewById(R.id.nav_ai_chat);
+    LinearLayout navStatistics = findViewById(R.id.nav_statistics);
 
-        navHome.setOnClickListener(v -> loadFragment(new HomeFragment(), "Home"));
-        navHistory.setOnClickListener(v -> loadFragment(new HistoryFragment(), "History"));
-        navAIChat.setOnClickListener(v -> loadFragment(new AIChatFragment(), "AI Chat"));
-        navStatistics.setOnClickListener(v -> loadFragment(new StatisticsFragment(), "Statistics"));
-    }
+    navHome.setOnClickListener(v -> loadFragment(new HomeFragment(), "Home"));
+    navHistory.setOnClickListener(v -> loadFragment(new HistoryFragment(), "History"));
+    navAIChat.setOnClickListener(v -> loadFragment(new AIChatFragment(), "AI Chat"));
+    navStatistics.setOnClickListener(v -> loadFragment(new StatisticsFragment(), "Statistics"));
+}
 
-    private void loadFragment(Fragment fragment, String title) {
-        // Show header and footer for normal fragments
-        showHeaderAndFooter();
-        
-        headerTitle.setText(title);
+private void loadFragment(Fragment fragment, String title) {
+    // Show header and footer for normal fragments
+    showHeaderAndFooter();
 
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.setCustomAnimations(
+    headerTitle.setText(title);
+
+    FragmentTransaction transaction = fragmentManager.beginTransaction();
+    transaction.setCustomAnimations(
             R.anim.fade_in_up,
             R.anim.fade_out_down,
             R.anim.fade_in_up,
             R.anim.fade_out_down
-        );
-        transaction.replace(R.id.fragment_container, fragment);
-        transaction.commit();
-    }
+    );
+    transaction.replace(R.id.fragment_container, fragment);
+    transaction.commit();
+}
 
-    private void hideHeaderAndFooter() {
-        if (headerLayout != null) {
-            headerLayout.setVisibility(View.GONE);
-        }
-        if (headerDivider != null) {
-            headerDivider.setVisibility(View.GONE);
-        }
-        if (bottomNavigation != null) {
-            bottomNavigation.setVisibility(View.GONE);
-        }
-    }
+// ================= Header & Footer Management =================
 
-    private void showHeaderAndFooter() {
-        if (headerLayout != null) {
-            headerLayout.setVisibility(View.VISIBLE);
-        }
-        if (headerDivider != null) {
-            headerDivider.setVisibility(View.VISIBLE);
-        }
-        if (bottomNavigation != null) {
-            bottomNavigation.setVisibility(View.VISIBLE);
-        }
+private void hideHeaderAndFooter() {
+    if (headerLayout != null) {
+        headerLayout.setVisibility(View.GONE);
     }
+    if (headerDivider != null) {
+        headerDivider.setVisibility(View.GONE);
+    }
+    if (bottomNavigation != null) {
+        bottomNavigation.setVisibility(View.GONE);
+    }
+}
 
-    /**
-     * Get the currently selected wallet ID
-     */
-    public static int getSelectedWalletId() {
-        return selectedWalletId;
+private void showHeaderAndFooter() {
+    if (headerLayout != null) {
+        headerLayout.setVisibility(View.VISIBLE);
     }
+    if (headerDivider != null) {
+        headerDivider.setVisibility(View.VISIBLE);
+    }
+    if (bottomNavigation != null) {
+        bottomNavigation.setVisibility(View.VISIBLE);
+    }
+}
 
-    /**
-     * Set the selected wallet ID
-     */
-    public static void setSelectedWalletId(int walletId) {
-        selectedWalletId = walletId;
-    }
+// ================= Public Accessors & Helpers =================
 
-    /**
-     * Get the current logged-in user ID (for use in fragments)
-     */
-    public static int getCurrentUserId() {
-        return currentUserId;
-    }
-    
-    /**
-     * Public method to hide header and footer (for use by fragments)
-     */
-    public void hideMainHeaderAndFooter() {
-        hideHeaderAndFooter();
-    }
-    
-    /**
-     * Public method to show header and footer (for use by fragments)
-     */
-    public void showMainHeaderAndFooter() {
-        showHeaderAndFooter();
-    }
+/**
+ * Get the currently selected wallet ID
+ */
+public static int getSelectedWalletId() {
+    return selectedWalletId;
+}
+
+/**
+ * Set the selected wallet ID
+ */
+public static void setSelectedWalletId(int walletId) {
+    selectedWalletId = walletId;
+    android.util.Log.d("MainActivity", "Wallet ID set to: " + walletId);
+}
+
+/**
+ * Get the current logged-in user ID (for use in fragments)
+ */
+public static int getCurrentUserId() {
+    return currentUserId;
+}
+
+/**
+ * Public method to hide header and footer (for use by fragments)
+ */
+public void hideMainHeaderAndFooter() {
+    hideHeaderAndFooter();
+}
+
+/**
+ * Public method to show header and footer (for use by fragments)
+ */
+public void showMainHeaderAndFooter() {
+    showHeaderAndFooter();
+}
 }

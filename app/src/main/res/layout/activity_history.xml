@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white">
+    android:background="?android:attr/windowBackground"
+    android:textColor="?android:attr/textColorPrimary">
 
     <!-- Search Bar Container -->
     <LinearLayout
@@ -22,14 +23,15 @@
             android:layout_width="0dp"
             android:layout_height="22dp"
             android:layout_weight="1"
-            android:background="@drawable/search_background"
             android:hint="@string/search"
-            android:textColorHint="@color/search_hint"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textColorHint="?android:attr/textColorHint"
             android:textSize="10sp"
             android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
             android:singleLine="true"
-            android:imeOptions="actionSearch" />
+            android:imeOptions="actionSearch"
+            android:background="?android:attr/windowBackground"/>
 
         <!-- Filter Icon -->
         <ImageView

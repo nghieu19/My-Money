@@ -6,29 +6,38 @@ import androidx.room.PrimaryKey;
 
 @Entity(tableName = "user")
 public class User {
-    
+
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     private int id;
-    
+
     @ColumnInfo(name = "username")
     private String username;
-    
+
     @ColumnInfo(name = "password")
     private String password;
-    
+
     @ColumnInfo(name = "email")
     private String email;
-    
+
     @ColumnInfo(name = "full_name")
     private String fullName;
-    
+
+    @ColumnInfo(name = "gender")
+    private String gender;
+
     @ColumnInfo(name = "tel")
     private String tel;
-    
+
     @ColumnInfo(name = "date_of_birth")
     private String dateOfBirth;
-    
+
+    @ColumnInfo(name = "job")
+    private String job;
+
+    @ColumnInfo(name = "address")
+    private String address;
+
     @ColumnInfo(name = "created_at")
     private long createdAt;
 
@@ -78,6 +87,14 @@ public class User {
         this.fullName = fullName;
     }
 
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
     public String getTel() {
         return tel;
     }
@@ -92,6 +109,37 @@ public class User {
 
     public void setDateOfBirth(String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getJob() {
+        return job;
+    }
+
+    public void setJob(String job) {
+        this.job = job;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+    public String getPhone() {
+        return tel;
+    }
+
+    public void setPhone(String phone) {
+        this.tel = phone;
+    }
+
+    public String getDob() {
+        return dateOfBirth;
+    }
+
+    public void setDob(String dob) {
+        this.dateOfBirth = dob;
     }
 
     public long getCreatedAt() {

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:elevation="12dp">
+
+    <!-- Tiêu đề -->
+    <TextView
+        android:text=" Confirm transaction information"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!-- Loại -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+        <TextView
+            android:text="Type:"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tvType"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Số tiền -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+        <TextView
+            android:text="Price:"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tvAmount"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Danh mục -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+        <TextView
+            android:text="Category:"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tvCategory"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Ngày -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp">
+        <TextView
+            android:text="Date:"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/tvDate"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Ghi chú -->
+    <EditText
+        android:id="@+id/etNote"
+        android:hint="Note"
+        android:textColor="@color/black"
+        android:textColorHint="@color/dark_gray"
+        android:background="@drawable/bg_edittext_rounded"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp"
+        android:layout_marginTop="4dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Nút hành động -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:text="Cancel"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/gray"
+            android:layout_marginEnd="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/btnConfirm"
+            android:text="Confirm"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/teal_700"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+</LinearLayout>

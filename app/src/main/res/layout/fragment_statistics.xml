@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="?android:windowBackground"
     android:fillViewport="true"
     tools:context=".StatisticsFragment">
 
@@ -25,40 +25,61 @@
             android:gravity="center_vertical"
             android:paddingHorizontal="20dp"
             android:paddingVertical="16dp"
-            android:background="@drawable/search_background">
+            android:background="@drawable/search_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
 
             <TextView
                 android:id="@+id/tv_date_range"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="01/08/2025 - 31/08/2025"
+                android:text="01/10/2025 - 31/10/2025"
                 android:textSize="15sp"
                 android:textColor="@color/text_primary" />
 
             <ImageView
                 android:layout_width="22dp"
                 android:layout_height="22dp"
-                android:src="@drawable/ic_dropdown_arrow" />
+                android:src="@drawable/ic_dropdown_arrow"
+                android:contentDescription="@string/select_date_range" />
         </LinearLayout>
 
         <!-- 🔹 Pie Chart -->
-        <FrameLayout
-            android:id="@+id/pie_chart_container"
+        <!-- 🔹 Pie Chart + Legend cạnh nhau -->
+        <LinearLayout
+            android:id="@+id/pie_chart_section"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="28dp"
-            android:padding="24dp"
-            android:background="@drawable/transaction_item_background">
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal"
+            android:background="@drawable/transaction_item_background"
+            android:padding="16dp"
+            android:gravity="center_vertical">
 
-            <ImageView
-                android:layout_width="220dp"
-                android:layout_height="220dp"
-                android:layout_gravity="center"
-                android:contentDescription="@string/pie_chart_description"
-                android:src="@drawable/ic_chart_placeholder" />
-        </FrameLayout>
+            <!-- 🥧 Biểu đồ tròn bên trái -->
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/pie_chart"
+                android:layout_width="0dp"
+                android:layout_height="260dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="@string/pie_chart_description" />
+
+            <!-- 🏷️ Legend (chú thích) bên phải -->
+            <LinearLayout
+                android:id="@+id/legend_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="start|center_vertical"
+                android:padding="8dp"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
 
         <!-- 🔹 Top Expenses Header -->
         <TextView
@@ -94,8 +115,9 @@
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:padding="12dp"
-            android:clickable="false"
-            android:focusable="false">
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
 
             <TextView
                 android:id="@+id/tv_year"
@@ -104,19 +126,14 @@
                 android:layout_weight="1"
                 android:text="2025"
                 android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:paddingVertical="6dp"
-                android:paddingHorizontal="4dp" />
+                android:textSize="14sp" />
 
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/ic_dropdown_arrow" />
-
-    </LinearLayout>
+                android:src="@drawable/ic_dropdown_arrow"
+                android:contentDescription="@string/select_year" />
+        </LinearLayout>
 
         <!-- 🔹 Bar Chart Container -->
         <LinearLayout

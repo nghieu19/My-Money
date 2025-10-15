@@ -6,7 +6,8 @@
     android:background="@drawable/transaction_item_background"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingHorizontal="12dp">
+    android:paddingHorizontal="12dp"
+    android:textColor="?android:attr/textColorPrimary">
 
     <ImageView
         android:id="@+id/transaction_icon"

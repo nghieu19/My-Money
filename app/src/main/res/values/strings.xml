@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">MyMoney</string>
     <string name="total_balance">Total balance</string>
     <string name="expenses">Expenses</string>
@@ -58,12 +58,12 @@
     <string name="category_pet">Pet</string>
     
     <!-- Months with abbreviations -->
-    <string name="month_jan">Jan</string>
-    <string name="month_feb">Feb</string>
-    <string name="month_mar">Mar</string>
-    <string name="month_apr">Apr</string>
-    <string name="month_may">May</string>
-    <string name="month_jun">Jun</string>
+    <string name="month_jan" translatable="false">Jan</string>
+    <string name="month_feb" translatable="false">Feb</string>
+    <string name="month_mar" translatable="false">Mar</string>
+    <string name="month_apr" translatable="false">Apr</string>
+    <string name="month_may" translatable="false">May</string>
+    <string name="month_jun" translatable="false">Jun</string>
     
     <!-- Import Screen -->
     <string name="import_title">Import</string>
@@ -112,8 +112,13 @@
     <string name="notes">Ghi chú</string>
     <string name="save">Lưu</string>
     <string name="enter_notes">Nhập ghi chú...</string>
-    
+
     <!-- Transaction -->
     <string name="transaction_icon">Transaction icon</string>
     <string name="add_transaction">Add transaction</string>
+    <string name="select_date_range">Chọn khoảng thời gian</string>
+    <string name="select_year" >Chọn năm</string>
+    <string name="logout_success">Logout successful</string>
+
+
 </resources>

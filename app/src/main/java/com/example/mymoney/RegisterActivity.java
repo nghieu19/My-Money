@@ -1,9 +1,12 @@
 package com.example.mymoney;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +18,8 @@ import com.example.mymoney.database.entity.User;
 public class RegisterActivity extends AppCompatActivity {
 
     EditText edtFullName, edtEmail, edtUsername, edtPassword;
+    RadioGroup radioGroupGender;
+    RadioButton rbMale, rbFemale;
     Button btnRegister;
     TextView tvLogin;
 
@@ -23,56 +28,79 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        // Ánh xạ view
         edtFullName = findViewById(R.id.edtFullName);
         edtEmail = findViewById(R.id.edtEmail);
         edtUsername = findViewById(R.id.edtUsername);
         edtPassword = findViewById(R.id.edtPassword);
+        radioGroupGender = findViewById(R.id.radioGroupGender);
+        rbMale = findViewById(R.id.rbMale);
+        rbFemale = findViewById(R.id.rbFemale);
         btnRegister = findViewById(R.id.btnRegister);
         tvLogin = findViewById(R.id.tvLogin);
 
-        // Handle Register button
+        // Xử lý nút Register
         btnRegister.setOnClickListener(v -> {
             String fullName = edtFullName.getText().toString().trim();
             String email = edtEmail.getText().toString().trim();
             String username = edtUsername.getText().toString().trim();
             String password = edtPassword.getText().toString().trim();
+            String gender = rbMale.isChecked() ? "Male" : rbFemale.isChecked() ? "Female" : "";
 
-            if (fullName.isEmpty() || email.isEmpty() || username.isEmpty() || password.isEmpty()) {
+            // Kiểm tra nhập đủ
+            if (fullName.isEmpty() || email.isEmpty() || username.isEmpty() || password.isEmpty() || gender.isEmpty()) {
                 Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Validate email format
+            // Kiểm tra email hợp lệ
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 Toast.makeText(this, "Email không hợp lệ", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Register user in background thread
+            // Xử lý trong thread riêng
             new Thread(() -> {
                 AppDatabase db = AppDatabase.getInstance(this);
-                
-                // Check if username already exists
                 User existingUser = db.userDao().getUserByUsername(username);
-                
+
                 runOnUiThread(() -> {
                     if (existingUser != null) {
                         Toast.makeText(this, "Tên đăng nhập đã tồn tại!", Toast.LENGTH_SHORT).show();
                     } else {
-                        // Create new user
                         new Thread(() -> {
+                            // Tạo người dùng mới
                             User newUser = new User();
                             newUser.setUsername(username);
                             newUser.setPassword(password);
                             newUser.setEmail(email);
                             newUser.setFullName(fullName);
+                            newUser.setGender(gender);
                             newUser.setCreatedAt(System.currentTimeMillis());
-                            
+
                             long userId = db.userDao().insert(newUser);
-                            
+
                             runOnUiThread(() -> {
                                 if (userId > 0) {
+                                    // ✅ Lưu đầy đủ thông tin vào SharedPreferences
+                                    SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = prefs.edit();
+                                    editor.putString("fullName", fullName);
+                                    editor.putString("email", email);
+                                    editor.putString("username", username);
+                                    editor.putString("password", password);
+                                    editor.putString("gender", gender);
+
+                                    // ✅ Thêm các giá trị mặc định để tránh hiển thị "(not set)"
+                                    editor.putString("phone", "(not set)");
+                                    editor.putString("dob", "(not set)");
+                                    editor.putString("job", "(not set)");
+                                    editor.putString("address", "(not set)");
+                                    editor.apply();
+
                                     Toast.makeText(this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
+
+                                    // Chuyển đến LoginActivity
                                     startActivity(new Intent(this, LoginActivity.class));
                                     finish();
                                 } else {
@@ -85,10 +113,9 @@ public class RegisterActivity extends AppCompatActivity {
             }).start();
         });
 
-        // Handle "Already have an account? Login" click
+        // Chuyển sang LoginActivity
         tvLogin.setOnClickListener(v -> {
-            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-            startActivity(intent);
+            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
             finish();
         });
     }

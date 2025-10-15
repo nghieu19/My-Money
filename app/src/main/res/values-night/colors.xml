@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- 🌿 App theme main -->
+    <color name="primary_green">#00B894</color>          <!-- xanh mint sáng hơn khi nền tối -->
+    <color name="mint_green">#1E3E3A</color>             <!-- nền mint tối -->
+    <color name="light_mint_green">#264E47</color>       <!-- tone dịu hơn -->
+    <color name="primary_dark">#0A3D34</color>
+
+    <!-- 🖋 Text colors -->
+    <color name="text_primary">#FFFFFF</color>           <!-- trắng chính -->
+    <color name="text_secondary">#CCCCCC</color>         <!-- xám sáng hơn -->
+    <color name="text_disabled">#777777</color>
+    <color name="gray_text">#BBBBBB</color>
+
+    <!-- ❤️ Accent colors -->
+    <color name="red_expense">#FF6B6B</color>            <!-- đỏ dịu hơn để không chói -->
+    <color name="expense_red">#FF6B6B</color>
+    <color name="green_income">#00E676</color>
+    <color name="income_green">#00E676</color>
+    <color name="yellow">#FFD740</color>
+
+    <!-- 🎨 Chart colors -->
+    <color name="chart_red">#EF5350</color>
+    <color name="chart_green">#4CAF50</color>
+    <color name="chart_blue">#42A5F5</color>
+    <color name="chart_orange">#FFA726</color>
+    <color name="chart_purple">#BA68C8</color>
+    <color name="chart_yellow">#FFF176</color>
+    <color name="chart_teal">#26A69A</color>
+    <color name="bar_chart_blue">#552A74D4</color>
+
+    <!-- 🧩 UI surfaces -->
+    <color name="background">#121212</color>             <!-- nền tổng thể -->
+    <color name="card_background">#1E1E1E</color>        <!-- nền card -->
+    <color name="item_background">#222222</color>
+    <color name="light_gray">#2A2A2A</color>
+    <color name="dark_gray">#444444</color>
+    <color name="gray">#AAAAAA</color>
+
+    <!-- 🔲 Inputs & outlines -->
+    <color name="search_hint">#99FFFFFF</color>
+    <color name="transaction_subtitle">#B3FFFFFF</color>
+    <color name="search_border">#33FFFFFF</color>
+    <color name="dropdown_border">#22FFFFFF</color>
+    <color name="dropdown_text">#DDFFFFFF</color>
+
+    <!-- ⚠️ System / Error -->
+    <color name="error_red">#FF5252</color>
+
+    <!-- 🌓 Mapping for dark -->
+    <color name="background_dark">#121212</color>
+    <color name="surface_dark">#1E1E1E</color>
+    <color name="text_primary_dark">#FFFFFF</color>
+    <color name="text_secondary_dark">#CCCCCC</color>
+    <color name="teal_700">#018786</color>
+    <color name="panel_background">#1E2A2A</color>
+
+</resources>

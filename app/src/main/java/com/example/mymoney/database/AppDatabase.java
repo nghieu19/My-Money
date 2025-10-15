@@ -37,107 +37,90 @@ import java.util.concurrent.Executors;
         exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
-    
+
     private static final String DATABASE_NAME = "mymoney_database";
     private static AppDatabase instance;
-    
+
     public abstract UserDao userDao();
     public abstract WalletDao walletDao();
     public abstract CategoryDao categoryDao();
     public abstract TransactionDao transactionDao();
     public abstract BudgetDao budgetDao();
     public abstract SavingGoalDao savingGoalDao();
-    
+
     public static synchronized AppDatabase getInstance(Context context) {
         if (instance == null) {
             instance = Room.databaseBuilder(
-                    context.getApplicationContext(),
-                    AppDatabase.class,
-                    DATABASE_NAME
-            )
-            .fallbackToDestructiveMigration()
-            .addCallback(new Callback() {
-                @Override
-                public void onCreate(@NonNull SupportSQLiteDatabase db) {
-                    super.onCreate(db);
-                    // Create default user and categories in background thread
-                    Executors.newSingleThreadExecutor().execute(() -> {
-                        createDefaultUser(context);
-                        createDefaultCategories(context);
-                    });
-                }
-                
-                @Override
-                public void onOpen(@NonNull SupportSQLiteDatabase db) {
-                    super.onOpen(db);
-                    // Ensure default user and categories exist even if database already existed
-                    Executors.newSingleThreadExecutor().execute(() -> {
-                        ensureDefaultUserExists(context);
-                        ensureDefaultCategoriesExist(context);
-                    });
-                }
-            })
-            .build();
+                            context.getApplicationContext(),
+                            AppDatabase.class,
+                            DATABASE_NAME
+                    )
+                    .fallbackToDestructiveMigration() // ✅ tránh crash khi thay đổi entity
+                    .addCallback(new Callback() {
+                        @Override
+                        public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                            super.onCreate(db);
+                            Executors.newSingleThreadExecutor().execute(() -> {
+                                createDefaultUser(context);
+                                createDefaultCategories(context);
+                            });
+                        }
+
+                        @Override
+                        public void onOpen(@NonNull SupportSQLiteDatabase db) {
+                            super.onOpen(db);
+                            Executors.newSingleThreadExecutor().execute(() -> {
+                                ensureDefaultUserExists(context);
+                                ensureDefaultCategoriesExist(context);
+                            });
+                        }
+                    })
+                    .build();
         }
         return instance;
     }
-    
-    /**
-     * Creates a default user when the database is first created
-     * This user will have ID = 1 and can be used for wallets
-     */
+
+    // 🧍‍♂️ Tạo user mặc định
     private static void createDefaultUser(Context context) {
         AppDatabase db = getInstance(context);
-        
-        // Create default user
+
         User defaultUser = new User();
         defaultUser.setUsername("default_user");
         defaultUser.setFullName("Default User");
         defaultUser.setEmail("default@mymoney.app");
-        defaultUser.setPassword(""); // Empty password for default user
-        
+        defaultUser.setPassword("");
+        defaultUser.setGender("Not set");
+        defaultUser.setJob("");
+        defaultUser.setAddress("");
+        defaultUser.setTel("");
+        defaultUser.setDateOfBirth("");
+
         long userId = db.userDao().insert(defaultUser);
-        android.util.Log.d("AppDatabase", "Default user created with ID: " + userId);
+        android.util.Log.d("AppDatabase", "✅ Default user created with ID: " + userId);
     }
-    
-    /**
-     * Ensures the default user exists (for existing databases)
-     */
+
+    // ✅ Đảm bảo user mặc định tồn tại
     private static void ensureDefaultUserExists(Context context) {
         AppDatabase db = getInstance(context);
-        
-        // Check if any user exists
         List<User> users = db.userDao().getAllUsers();
         if (users.isEmpty()) {
-            // Create default user if no users exist
-            User defaultUser = new User();
-            defaultUser.setUsername("default_user");
-            defaultUser.setFullName("Default User");
-            defaultUser.setEmail("default@mymoney.app");
-            defaultUser.setPassword(""); // Empty password for default user
-            
-            long userId = db.userDao().insert(defaultUser);
-            android.util.Log.d("AppDatabase", "Default user ensured with ID: " + userId);
+            createDefaultUser(context);
         }
     }
-    
-    /**
-     * Creates default categories when the database is first created
-     * Categories: Food, Home, Transport, Relationship, Entertainment (Expense)
-     * Salary, Business, Gifts, Others (Income)
-     */
+
+    // 🍱 Tạo category mặc định
     private static void createDefaultCategories(Context context) {
         AppDatabase db = getInstance(context);
-        
-        // Create default wallet for transactions (independent of categories)
+
+        // Default wallet
         Wallet defaultWallet = new Wallet();
         defaultWallet.setName("Default Wallet");
         defaultWallet.setType("cash");
         defaultWallet.setBalance(0.0);
         defaultWallet.setCurrency("VND");
-        defaultWallet.setUserId(1); // Default user ID
+        defaultWallet.setUserId(1);
         defaultWallet.setActive(true);
-        
+
         db.walletDao().insert(defaultWallet);
 
         // Create expense categories with icons
@@ -179,14 +162,10 @@ public abstract class AppDatabase extends RoomDatabase {
             android.util.Log.d("AppDatabase", "Default income category created: " + categoryData[0] + " with ID: " + categoryId);
         }
     }
-    
-    /**
-     * Ensures default categories exist (for existing databases)
-     */
+
+    // ✅ Đảm bảo category mặc định tồn tại
     private static void ensureDefaultCategoriesExist(Context context) {
         AppDatabase db = getInstance(context);
-        
-        // Check if any categories exist
         List<Category> categories = db.categoryDao().getAllCategories();
         if (categories.isEmpty()) {
             // Create default wallet if none exists (for transactions, not categories)

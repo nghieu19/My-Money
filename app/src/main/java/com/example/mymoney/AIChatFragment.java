@@ -9,10 +9,24 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.mymoney.chatbot.ChatAdapter;
+import com.example.mymoney.chatbot.ChatMessage;
+import com.example.mymoney.chatbot.ChatbotService;
+
+import java.util.HashMap;
+import java.util.Map;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,6 +51,7 @@ public class AIChatFragment extends Fragment {
     private static Map<String, ChatAdapter> chatHistoryCache = new HashMap<>();
     private int currentUserId = -1;
     private int currentWalletId = -1;
+
 
     @Nullable
     @Override
