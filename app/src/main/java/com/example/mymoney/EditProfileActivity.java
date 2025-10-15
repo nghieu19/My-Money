@@ -84,10 +84,18 @@ public class EditProfileActivity extends AppCompatActivity {
             editor.putString("job", job);
             editor.putString("address", address);
             editor.putString("gender", genderSelected);
-            editor.apply();
 
+            // ❗ Dùng commit() để đảm bảo lưu xong ngay lập tức
+            editor.commit();
+
+            // Thông báo
             Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
-            finish(); // Quay lại AccountActivity
+
+            // Gửi kết quả OK về cho AccountActivity để reload dữ liệu
+            setResult(RESULT_OK);
+
+            // Quay lại AccountActivity
+            finish();
         });
     }
 
