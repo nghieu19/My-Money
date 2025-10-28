@@ -468,11 +468,13 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout navHistory = findViewById(R.id.nav_history);
     LinearLayout navAIChat = findViewById(R.id.nav_ai_chat);
     LinearLayout navStatistics = findViewById(R.id.nav_statistics);
+    LinearLayout navBudget = findViewById(R.id.nav_budget);
 
     navHome.setOnClickListener(v -> loadFragment(new HomeFragment(), "Home"));
     navHistory.setOnClickListener(v -> loadFragment(new HistoryFragment(), "History"));
     navAIChat.setOnClickListener(v -> loadFragment(new AIChatFragment(), "AI Chat"));
     navStatistics.setOnClickListener(v -> loadFragment(new StatisticsFragment(), "Statistics"));
+        navBudget.setOnClickListener(v -> loadFragment(new BudgetFragment(), "Budget"));
 }
 
 private void loadFragment(Fragment fragment, String title) {

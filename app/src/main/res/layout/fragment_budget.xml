@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/back2_copy"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🎯 Mục tiêu tiết kiệm"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/edt_target_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nhập số tiền bạn muốn tiết kiệm (VND)"
+            android:inputType="number"
+            android:background="@drawable/bg_edittext_rounded"
+            android:padding="10dp"
+            android:textColor="?attr/colorOnSurface"
+            android:textColorHint="?attr/colorOnSurfaceVariant"/>
+
+        <EditText
+            android:id="@+id/edt_time_range"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nhập thời gian (tháng/ngày)"
+            android:background="@drawable/bg_edittext_rounded"
+            android:padding="10dp"
+            android:layout_marginTop="10dp"
+            android:textColor="?attr/colorOnSurface"
+            android:textColorHint="?attr/colorOnSurfaceVariant"/>
+
+        <Button
+            android:id="@+id/btn_calculate_budget"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tính toán kế hoạch chi tiêu"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="@android:color/white"/>
+
+        <TextView
+            android:id="@+id/tv_budget_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:layout_marginTop="20dp"
+            android:textColor="?attr/colorOnSurface"
+            android:text=""/>
+    </LinearLayout>
+</ScrollView>
