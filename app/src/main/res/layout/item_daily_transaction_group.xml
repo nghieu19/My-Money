@@ -8,7 +8,7 @@
     app:cardCornerRadius="16dp"
     app:cardElevation="4dp"
     app:strokeWidth="0dp"
-    app:cardBackgroundColor="#F5FFFFFF"
+    app:cardBackgroundColor="@color/item_background"
     android:animateLayoutChanges="true">
 
     <LinearLayout
@@ -37,7 +37,7 @@
                 android:text="Tue, 10/14"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="@color/black" />
+                android:textColor="@color/gray" />
 
             <!-- Income/Expense Summary (Right Side) -->
             <TextView

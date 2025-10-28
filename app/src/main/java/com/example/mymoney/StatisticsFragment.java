@@ -205,12 +205,6 @@ public class StatisticsFragment extends Fragment {
         }).start();
     }
 
-    /**
-     * Biểu đồ tròn (PieChart):
-     * - Hiển thị tỷ lệ chi tiêu theo danh mục
-     * - Không có chữ trong lát, không có lỗ giữa
-     * - Legend (chú thích) hiển thị riêng bên phải
-     */
     private void displayPieChart(List<CategoryTotal> data) {
         pieChart.clear();
 

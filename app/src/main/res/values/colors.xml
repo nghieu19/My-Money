@@ -34,7 +34,7 @@
     <color name="hard_pink">#FF6B9D</color>
     
     <!-- UI element colors - Pink theme -->
-    <color name="item_background">#30FFB6C1</color>
+    <color name="item_background">#FFEAF0</color>
     <color name="search_hint">#76000000</color>
     <color name="transaction_subtitle">#804A2C2A</color>
     <color name="search_border">#40FFB6C1</color>

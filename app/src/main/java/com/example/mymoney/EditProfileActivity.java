@@ -54,10 +54,8 @@ public class EditProfileActivity extends AppCompatActivity {
             rbFemale.setChecked(true);
         }
 
-        // Khi click vào ô DOB => mở lịch chọn ngày
         edtDob.setOnClickListener(v -> showDatePickerDialog());
 
-        // Xử lý khi nhấn Save
         btnSave.setOnClickListener(v -> {
             String fullName = edtFullName.getText().toString().trim();
             String email = edtEmail.getText().toString().trim();

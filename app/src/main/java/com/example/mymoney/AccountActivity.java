@@ -3,11 +3,14 @@ package com.example.mymoney;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.EditText;
+import android.widget.Button;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import org.jetbrains.annotations.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class AccountActivity extends AppCompatActivity {
@@ -33,7 +36,7 @@ public class AccountActivity extends AppCompatActivity {
         tvAddress = findViewById(R.id.tvAddress);
         btnEdit = findViewById(R.id.btnEdit);
 
-        // Tải dữ liệu ban đầu
+
         loadUserData();
 
         // Tạo launcher để nhận kết quả sau khi chỉnh sửa
@@ -41,7 +44,6 @@ public class AccountActivity extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
-                        // Khi EditProfileActivity bấm Save -> cập nhật lại
                         loadUserData();
                     }
                 }

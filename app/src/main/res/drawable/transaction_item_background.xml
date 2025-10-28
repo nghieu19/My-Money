@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    
-    <solid android:color="@color/item_background" />
-    
-    <corners android:radius="20dp" />
-    
+    <!-- Bo góc nhẹ -->
+    <corners android:radius="16dp" />
+
+    <!-- Nền sáng hơn chút để nổi trên nền đen -->
+    <solid android:color="#FFF6F8" />   <!-- xám mint đậm, không quá tối -->
+
+    <!-- Đổ bóng nhẹ nếu muốn -->
+    <padding android:left="8dp" android:top="8dp" android:right="8dp" android:bottom="8dp" />
 </shape>

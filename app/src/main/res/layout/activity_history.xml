@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?android:attr/windowBackground"
-    android:textColor="?android:attr/textColorPrimary">
+    android:background="@drawable/back2"
+    android:textColor="?attr/colorOnSurface">
 
     <!-- Search Bar Container -->
     <LinearLayout
@@ -18,28 +18,48 @@
         android:gravity="center_vertical">
 
         <!-- Search Bar -->
-        <EditText
-            android:id="@+id/search_edit_text"
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="22dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
-            android:hint="@string/search"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textColorHint="?android:attr/textColorHint"
-            android:textSize="10sp"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
-            android:singleLine="true"
-            android:imeOptions="actionSearch"
-            android:background="?android:attr/windowBackground"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_edittext_rounded"
+            android:paddingHorizontal="12dp">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_search"
+                app:tint="?attr/colorOnSurfaceVariant"
+                android:contentDescription="@string/search" />
+
+            <EditText
+                android:id="@+id/search_edit_text"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bg_edittext_rounded"
+                android:hint="@string/search"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurfaceVariant"
+                android:textSize="14sp"
+                android:imeOptions="actionSearch"
+                android:singleLine="true" />
+
+        </LinearLayout>
 
         <!-- Filter Icon -->
         <ImageView
             android:id="@+id/filter_icon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:layout_marginStart="12dp"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_filter"
+            app:tint="?attr/colorOnSurfaceVariant"
             android:contentDescription="@string/filter" />
 
     </LinearLayout>
