@@ -11,6 +11,7 @@ import com.example.mymoney.MonthTotal;
 import com.example.mymoney.CategoryTotal;
 import com.example.mymoney.MonthTotal;
 import com.example.mymoney.database.entity.Transaction;
+import com.example.mymoney.model.CategoryExpense;
 
 import java.util.List;
 
@@ -109,6 +110,15 @@ public interface TransactionDao {
             "GROUP BY c.name " +
             "ORDER BY total DESC")
     List<CategoryTotal> getExpensesByDateRange(int userId, int walletId, long startDate, long endDate);
+    // 🟢 ===== HÀM CHO MỤC BUDGET (dùng trong BudgetFragment) =====
+    @Query("SELECT c.name AS category, SUM(t.amount) AS total " +
+            "FROM `transaction` t " +
+            "JOIN category c ON t.category_id = c.id " +
+            "WHERE t.type = 'expense' AND t.created_at >= :startDate " +
+            "GROUP BY c.name " +
+            "HAVING total > 0 " +
+            "ORDER BY total DESC")
+    List<CategoryExpense> getExpensesByCategorySince(long startDate);
 
 
 }

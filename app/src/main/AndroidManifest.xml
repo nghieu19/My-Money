@@ -56,6 +56,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".LoginActivity" />
+        <activity android:name=".WelcomeActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".AccountActivity" />
         <activity android:name=".EditProfileActivity" />

@@ -1,62 +1,100 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/back2_copy"
-    android:padding="16dp">
+    android:padding="20dp"
+    android:background="@drawable/back2_copy">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🎯 Mục tiêu tiết kiệm"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="?attr/colorOnSurface"
-            android:layout_marginBottom="8dp"/>
-
+        <!-- Ô nhập -->
         <EditText
             android:id="@+id/edt_target_amount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nhập số tiền bạn muốn tiết kiệm (VND)"
+            android:hint="💰 Số tiền muốn tiết kiệm (VND)"
             android:inputType="number"
             android:background="@drawable/bg_edittext_rounded"
-            android:padding="10dp"
-            android:textColor="?attr/colorOnSurface"
-            android:textColorHint="?attr/colorOnSurfaceVariant"/>
+            android:padding="12dp" />
 
         <EditText
             android:id="@+id/edt_time_range"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nhập thời gian (tháng/ngày)"
+            android:hint="⏳ Số tháng dự định tiết kiệm"
+            android:inputType="number"
             android:background="@drawable/bg_edittext_rounded"
-            android:padding="10dp"
-            android:layout_marginTop="10dp"
-            android:textColor="?attr/colorOnSurface"
-            android:textColorHint="?attr/colorOnSurfaceVariant"/>
+            android:padding="12dp"
+            android:layout_marginTop="10dp" />
 
-        <Button
-            android:id="@+id/btn_calculate_budget"
+        <EditText
+            android:id="@+id/edt_income"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tính toán kế hoạch chi tiêu"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="?attr/colorPrimary"
-            android:textColor="@android:color/white"/>
+            android:hint="Lương hàng tháng (VND)"
+            android:inputType="number"
+            android:background="@drawable/bg_edittext_rounded"
+            android:padding="12dp"
+            android:layout_marginTop="10dp" />
 
+        <!-- Nút 1 -->
+        <Button
+            android:id="@+id/btn_calculate_budget"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="40dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_button_rounded"
+            android:text="TÍNH TOÁN CHI TIÊU HỢP LÝ"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+        <!-- Nút 2 -->
+        <Button
+            android:id="@+id/btn_start_saving"
+            android:layout_width="199dp"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="40dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_button_rounded"
+            android:text="BẮT ĐẦU TIẾT KIỆM"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+        <!-- Nút 3 -->
+        <Button
+            android:id="@+id/btn_check_saving"
+            android:layout_width="225dp"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="40dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_button_rounded"
+            android:text="CẬP NHẬT TIẾN ĐỘ "
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+        <!-- Kết quả -->
         <TextView
             android:id="@+id/tv_budget_result"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="14sp"
             android:layout_marginTop="20dp"
-            android:textColor="?attr/colorOnSurface"
-            android:text=""/>
+            android:textColor="?attr/colorOnSurface" />
+        <TextView
+            android:id="@+id/tv_saving_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Chưa bắt đầu tiết kiệm"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:layout_marginTop="8dp"
+            android:gravity="center_horizontal"
+            android:background="@android:color/transparent" />
+
     </LinearLayout>
 </ScrollView>
