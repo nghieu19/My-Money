@@ -47,19 +47,19 @@ public interface TransactionDao {
 
     @Query("SELECT * FROM `transaction` WHERE created_at BETWEEN :startDate AND :endDate ORDER BY created_at DESC")
     List<Transaction> getTransactionsByDateRange(long startDate, long endDate);
-    
+
     @Query("SELECT * FROM `transaction` WHERE user_id = :userId AND created_at BETWEEN :startDate AND :endDate ORDER BY created_at DESC")
     List<Transaction> getTransactionsByDateRange(int userId, long startDate, long endDate);
-    
+
     @Query("SELECT * FROM `transaction` WHERE wallet_id = :walletId AND created_at BETWEEN :startDate AND :endDate ORDER BY created_at DESC")
     List<Transaction> getTransactionsByWalletAndDateRange(int walletId, long startDate, long endDate);
-    
+
     @Query("SELECT SUM(amount) FROM `transaction` WHERE user_id = :userId AND type = 'expense' AND created_at BETWEEN :startDate AND :endDate")
     Double getTotalExpensesByDateRange(int userId, long startDate, long endDate);
-    
+
     @Query("SELECT SUM(amount) FROM `transaction` WHERE user_id = :userId AND type = 'income' AND created_at BETWEEN :startDate AND :endDate")
     Double getTotalIncomeByDateRange(int userId, long startDate, long endDate);
-    
+
     @Query("SELECT SUM(amount) FROM `transaction` WHERE wallet_id = :walletId AND type = 'expense'")
     double getTotalExpensesByWallet(int walletId);
 
@@ -102,7 +102,7 @@ public interface TransactionDao {
             "GROUP BY month " +
             "ORDER BY month")
     List<MonthTotal> getMonthlyExpensesByYear(int userId, int walletId, long startDate, long endDate);
-    
+
     @Query("SELECT c.name AS category, SUM(t.amount) AS total " +
             "FROM `transaction` t " +
             "JOIN category c ON t.category_id = c.id " +
@@ -119,6 +119,15 @@ public interface TransactionDao {
             "HAVING total > 0 " +
             "ORDER BY total DESC")
     List<CategoryExpense> getExpensesByCategorySince(long startDate);
+
+    @Query("SELECT IFNULL(SUM(amount), 0) FROM `transaction` " +
+            "WHERE type = 'income' AND created_at >= :startDate")
+    double getTotalIncomeSince(long startDate);
+
+    // Tổng chi tiêu kể từ một thời điểm
+    @Query("SELECT IFNULL(SUM(amount), 0) FROM `transaction` " +
+            "WHERE type = 'expense' AND created_at >= :startDate")
+    double getTotalExpenseSince(long startDate);
 
 
 }

@@ -101,10 +101,8 @@ public class HistoryFragment extends Fragment {
         });
         
         // TODO: Implement filter functionality
-        filterIcon.setOnClickListener(v -> {
-            // Show filter dialog (type, date range, category, etc.)
-            android.util.Log.d("HistoryFragment", "Filter clicked");
-        });
+        filterIcon.setOnClickListener(v -> showFilterDialog());
+
     }
     
     private void loadTransactions() {
@@ -197,4 +195,41 @@ public class HistoryFragment extends Fragment {
         android.util.Log.d("HistoryFragment", "refreshData() called from MainActivity");
         loadTransactions();
     }
+    private void showFilterDialog() {
+        String[] options = {"Total", "Income", "Expense"};
+
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Lọc giao dịch theo loại")
+                .setItems(options, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            // Hiển thị tất cả
+                            adapter.setTransactions(allTransactions);
+                            break;
+                        case 1:
+                            filterByType("income");
+                            break;
+                        case 2:
+                            filterByType("expense");
+                            break;
+                    }
+                })
+                .show();
+    }
+
+    private void filterByType(String type) {
+        new Thread(() -> {
+            List<Transaction> filtered = new ArrayList<>();
+            for (Transaction t : allTransactions) {
+                if (t.getType() != null && t.getType().equalsIgnoreCase(type)) {
+                    filtered.add(t);
+                }
+            }
+
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> adapter.setTransactions(filtered));
+            }
+        }).start();
+    }
+
 }
