@@ -49,6 +49,8 @@ public class BudgetFragment extends Fragment {
     private String lastCalculatedSummary = "";
     private ProgressBar progressSaving;
     private TextView tvSavingPercent;
+    private Button btnRecalc;
+
 
 
     // ==== Lifecycle ====
@@ -56,60 +58,75 @@ public class BudgetFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_budget, container, false);
 
-        // Map views
+        // ---------------------------------------------------
+        // ✅ Map nút TÍNH LẠI ngay lập tức để tránh null
+        // ---------------------------------------------------
+        btnRecalc = view.findViewById(R.id.btn_recalc_budget);
+        if (btnRecalc != null) {
+            btnRecalc.setOnClickListener(v -> recalcBudgetAutomatically());
+            btnRecalc.setVisibility(View.GONE);
+        }
+
+        // ---------------------------------------------------
+        // ✅ Map các view còn lại
+        // ---------------------------------------------------
         layoutInputSection = view.findViewById(R.id.layout_input_section);
-        layoutSavingSection = view.findViewById(R.id.layout_saving_section);  // ✅ THÊM Ở ĐÂY
-        layoutSavingSection.setVisibility(View.GONE);                         // ✅ ẨN MẶC ĐỊNH
+        layoutSavingSection = view.findViewById(R.id.layout_saving_section);
+        layoutSavingSection.setVisibility(View.GONE);
 
         edtTarget = view.findViewById(R.id.edt_target_amount);
         edtMonths = view.findViewById(R.id.edt_time_range);
         edtIncome = view.findViewById(R.id.edt_income);
         tvResult = view.findViewById(R.id.tv_budget_result);
+
         btnCalc = view.findViewById(R.id.btn_calculate_budget);
         btnStartSaving = view.findViewById(R.id.btn_start_saving);
         btnEndSaving = view.findViewById(R.id.btn_end_saving);
         edtSavedMoney = view.findViewById(R.id.edt_saved_money);
         btnUpdateSaved = view.findViewById(R.id.btn_update_saved);
+
         progressSaving = view.findViewById(R.id.progressSaving);
         tvSavingPercent = view.findViewById(R.id.tvSavingPercent);
         progressSaving.setVisibility(View.GONE);
 
-
-        // Init storage & DAO
+        // ---------------------------------------------------
+        // ✅ Init storage & DAO
+        // ---------------------------------------------------
         prefs = requireContext().getSharedPreferences("budget_prefs", Context.MODE_PRIVATE);
         transactionDao = AppDatabase.getInstance(requireContext()).transactionDao();
 
-        // Trạng thái mặc định
+        // ---------------------------------------------------
+        // ✅ Trạng thái mặc định (ẩn các nút)
+        // ---------------------------------------------------
         btnStartSaving.setVisibility(View.GONE);
         btnEndSaving.setVisibility(View.GONE);
         edtSavedMoney.setVisibility(View.GONE);
         btnUpdateSaved.setVisibility(View.GONE);
 
-        // Nếu đang có kế hoạch tiết kiệm → load lại giao diện
+        // ---------------------------------------------------
+        // ✅ Nếu đang tiết kiệm → load giao diện
+        // ---------------------------------------------------
         if (prefs.getBoolean("isSaving", false)) {
-            loadSavedPlan();   // ✅ sẽ tự show tiến độ
+            loadSavedPlan();
         } else {
             layoutInputSection.setVisibility(View.VISIBLE);
             btnCalc.setVisibility(View.VISIBLE);
         }
 
-
-        // Tính toán
+        // ---------------------------------------------------
+        // ✅ Các listener
+        // ---------------------------------------------------
         btnCalc.setOnClickListener(v ->
                 Executors.newSingleThreadExecutor().execute(this::calculateBudget)
         );
 
-        // Bắt đầu tiết kiệm
         btnStartSaving.setOnClickListener(v -> startSavingAction());
-
-        // Kết thúc tiết kiệm
         btnEndSaving.setOnClickListener(v -> endSavingAction());
-
-        // Cập nhật tiền tiết kiệm
         btnUpdateSaved.setOnClickListener(v -> updateSavedMoney());
 
         return view;
     }
+
 
     // ==== Utils ====
     private long floorToThousand(double value) {
@@ -324,6 +341,7 @@ public class BudgetFragment extends Fragment {
     private void checkSavingProgress() {
 
         long savingStart = prefs.getLong("savingStart", 0);
+        if (btnRecalc == null) btnRecalc = getView().findViewById(R.id.btn_recalc_budget);
         if (savingStart == 0) {
             requireActivity().runOnUiThread(() -> {
                 tvResult.setText("Bạn chưa bắt đầu tiết kiệm.");
@@ -342,20 +360,31 @@ public class BudgetFragment extends Fragment {
         final long MS_PER_DAY = 24L * 60 * 60 * 1000;
         long daysPassed = ((now - savingStart) / MS_PER_DAY) + 1;
 
-        // ==== Giới hạn & kế hoạch theo tháng =====
-        long plannedSavedToDate = savingPerMonth;       // ✅ chỉ theo tháng
-        long allowedExpenseToDate = maxExpensePerMonth; // ✅ chỉ theo tháng
-
+        long plannedSavedToDate = savingPerMonth;
         long remainToPlan = plannedSavedToDate - savedManual;
         if (remainToPlan < 0) remainToPlan = 0;
 
-        // ==== Tổng chi tiêu thực tế ====
-        long totalExpense = floorToThousand(
-                AppDatabase.getInstance(requireContext())
-                        .transactionDao()
-                        .getTotalExpenseSince(savingStart)
-        );
+        // ==== Chi tiêu tháng này ====
+        long expenseThisMonth = getExpenseThisMonth();
+        long monthLeft = maxExpensePerMonth - expenseThisMonth;
+        if (monthLeft < 0) monthLeft = 0;
 
+        // ==== LẤY DANH SÁCH CHI TIÊU THEO DANH MỤC ====
+        List<CategoryExpense> expenses = transactionDao.getExpensesByCategorySince(savingStart);
+
+        // ===== KIỂM TRA VƯỢT TỔNG HOẶC VƯỢT DANH MỤC =====
+        boolean isExceeded = expenseThisMonth > maxExpensePerMonth;
+
+        for (CategoryExpense ce : expenses) {
+            long spentCat = floorToThousand(ce.total);
+            long limitCat = prefs.getLong("limit_" + ce.category, 0);
+
+            if (spentCat > limitCat) {
+                isExceeded = true;
+            }
+        }
+
+        // ==== XÂY DỰNG CHUỖI HIỂN THỊ ====
         StringBuilder result = new StringBuilder();
         result.append("<b>📊 Tiến độ tiết kiệm</b><br><br>");
         result.append("<b>Ngày bắt đầu:</b> ").append(dateFormat.format(new Date(savingStart))).append("<br>");
@@ -367,21 +396,19 @@ public class BudgetFragment extends Fragment {
         result.append("<b>Còn thiếu:</b> ").append(df.format(remainToPlan)).append(" VND<br><br>");
 
         // ==== CHI TIÊU ====
-        long expenseThisMonth = getExpenseThisMonth();
-        long monthLeft = maxExpensePerMonth - expenseThisMonth;
-        if (monthLeft < 0) monthLeft = 0;
-
         result.append("<b>Tháng này được tiêu tối đa:</b> ")
                 .append(df.format(maxExpensePerMonth)).append(" VND<br>");
 
         result.append("<b>Đã tiêu tháng này:</b> ")
-                .append(df.format(monthLeft)).append(" VND<br>");
-        result.append("<b>Còn lại trong tháng:</b> ")
                 .append(df.format(expenseThisMonth)).append(" VND<br>");
 
+        result.append("<b>Còn lại trong tháng:</b> ")
+                .append(df.format(monthLeft)).append(" VND<br><br>");
 
-        if (totalExpense > allowedExpenseToDate) {
-            result.append("<font color='red'><b>⚠️ Vượt ngân sách!</b></font><br><br>");
+        // ==== TRẠNG THÁI NGÂN SÁCH ====
+        if (isExceeded) {
+            result.append("<font color='red'><b>⚠️ Vượt ngân sách!</b></font><br>");
+            result.append("<u><font color='blue'>Nhấn để tính toán lại chi tiêu</font></u><br><br>");
         } else {
             result.append("<font color='green'><b>👍 Đang trong giới hạn!</b></font><br><br>");
         }
@@ -389,23 +416,16 @@ public class BudgetFragment extends Fragment {
         // ==== THEO DANH MỤC ====
         result.append("<b>Chi tiêu theo danh mục (giới hạn theo tháng):</b><br>");
 
-        List<CategoryExpense> expenses = transactionDao.getExpensesByCategorySince(savingStart);
-
         for (CategoryExpense ce : expenses) {
 
             long spentCat = floorToThousand(ce.total);
-
-            // ✅ Giới hạn theo tháng (đã lưu khi tính toán)
             long perMonthLimit = prefs.getLong("limit_" + ce.category, 0);
-
-            // ✅ Giới hạn tháng → không nhân theo ngày
-            long allowedCatToDate = perMonthLimit;
 
             result.append("• <b>").append(ce.category).append("</b>: ")
                     .append(df.format(spentCat)).append("/")
-                    .append(df.format(allowedCatToDate)).append(" VND ");
+                    .append(df.format(perMonthLimit)).append(" VND ");
 
-            if (spentCat > allowedCatToDate) {
+            if (spentCat > perMonthLimit) {
                 result.append("<font color='red'>(vượt)</font>");
             } else {
                 result.append("<font color='green'>(ổn)</font>");
@@ -413,11 +433,20 @@ public class BudgetFragment extends Fragment {
             result.append("<br>");
         }
 
+        final boolean exceededFinal = isExceeded;
+
         requireActivity().runOnUiThread(() -> {
             tvResult.setText(android.text.Html.fromHtml(result.toString()));
             tvResult.setGravity(Gravity.START);
+
+            if (btnRecalc != null) {
+                btnRecalc.setVisibility(exceededFinal ? View.VISIBLE : View.GONE);
+            }
         });
+
     }
+
+
 
 
 
@@ -483,6 +512,54 @@ public class BudgetFragment extends Fragment {
         return floorToThousand(
                 transactionDao.getTotalExpenseSince(from)
         );
+    }
+    private void recalcBudgetAutomatically() {
+
+        long income = prefs.getLong("income", 0);
+        long target = prefs.getLong("target", 0);
+        long months = prefs.getLong("months", 0);
+
+        if (income == 0 || target == 0 || months == 0) {
+            return;
+        }
+
+        // Tính lại
+        long savingPerMonth = floorToThousand((double) target / months);
+        long maxExpensePerMonth = floorToThousand(income - savingPerMonth);
+
+        // Dữ liệu 3 tháng gần nhất
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MONTH, -3);
+        long fromDate = cal.getTimeInMillis();
+
+        List<CategoryExpense> expenses = transactionDao.getExpensesByCategorySince(fromDate);
+
+        double totalSpent3M = 0;
+        for (CategoryExpense e : expenses) totalSpent3M += e.total;
+
+        long totalSpent = floorToThousand(totalSpent3M);
+        if (totalSpent < 1000) totalSpent = 1000;
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong("savingPerMonth", savingPerMonth);
+        editor.putLong("maxExpensePerMonth", maxExpensePerMonth);
+
+        for (CategoryExpense e : expenses) {
+            long spentCat = floorToThousand(e.total);
+            double ratio = (double) spentCat / totalSpent;
+            long newLimit = floorToThousand(ratio * maxExpensePerMonth);
+            editor.putLong("limit_" + e.category, newLimit);
+        }
+
+        editor.apply();
+
+        new android.app.AlertDialog.Builder(requireContext())
+                .setTitle("Đã tính lại ngân sách")
+                .setMessage("Giới hạn chi tiêu đã được điều chỉnh lại theo thực tế chi tiêu của bạn.")
+                .setPositiveButton("OK", (d,w) -> {
+                    loadSavedPlan();
+                })
+                .show();
     }
 
 

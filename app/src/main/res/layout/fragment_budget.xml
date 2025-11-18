@@ -5,7 +5,6 @@
     android:fillViewport="true"
     android:padding="20dp"
     android:background="@drawable/back2_copy"
-
     android:descendantFocusability="afterDescendants"
     android:isScrollContainer="false"
     android:focusableInTouchMode="true">
@@ -75,6 +74,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/bg_card_rounded"
             android:padding="16dp">
+
+            <!-- Nút kết thúc tiết kiệm góc phải -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -88,6 +89,18 @@
                     android:text="Kết thúc tiết kiệm"
                     android:textColor="@android:color/white"
                     android:textStyle="bold"/>
+                <!-- Nút tính lại chi tiêu -->
+                <Button
+                    android:id="@+id/btn_recalc_budget"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Tính lại chi tiêu"
+                    android:background="@drawable/bg_button_rounded"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    android:layout_gravity="end"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone"/>
             </RelativeLayout>
 
             <TextView
@@ -99,6 +112,8 @@
                 android:padding="6dp"
                 android:gravity="center_horizontal" />
         </LinearLayout>
+
+        <!-- Thanh tiến độ -->
         <FrameLayout
             android:id="@+id/progressContainer"
             android:layout_width="match_parent"
@@ -114,7 +129,6 @@
                 android:progress="0"
                 android:progressDrawable="@drawable/progress_pink" />
 
-            <!-- Text nằm đè lên progress -->
             <TextView
                 android:id="@+id/tvSavingPercent"
                 android:layout_width="match_parent"
@@ -126,8 +140,6 @@
                 android:textStyle="bold" />
 
         </FrameLayout>
-
-
 
         <!-- ==== NÚT BẮT ĐẦU TIẾT KIỆM ==== -->
         <Button
@@ -141,6 +153,7 @@
             android:textStyle="bold"
             android:layout_gravity="center" />
 
+
         <!-- ================== KHỐI TIẾT KIỆM ================== -->
         <LinearLayout
             android:id="@+id/layout_saving_section"
@@ -153,17 +166,17 @@
             android:visibility="gone">
 
 
-            <!-- Hàng nhập số tiền & nút cập nhật -->
+
+            <!-- Hàng nhập tiền + cập nhật -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="10dp">
+                android:gravity="center_vertical">
 
                 <EditText
                     android:id="@+id/edt_saved_money"
-                    android:layout_width="2dp"
+                    android:layout_width="0dp"
                     android:layout_height="40dp"
                     android:layout_weight="1"
                     android:hint="Nhập số tiền đã tiết kiệm"
@@ -183,7 +196,6 @@
             </LinearLayout>
 
         </LinearLayout>
-
 
     </LinearLayout>
 </ScrollView>
